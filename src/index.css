@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&family=Literata:opsz,wght@7..72,650;7..72,750&display=swap');
+
+:root {
+  --display: 'Literata', Georgia, serif;
+  --body: 'Aptos', 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  --ink: #191715;
+  --muted: #655f56;
+  --line: #ddd8cb;
+  --line-strong: #191715;
+  --paper: #f7f7f2;
+  --white: #ffffff;
+
+  color: var(--ink);
+  background: var(--paper);
+  font: 16px/1.55 var(--body);
+  font-synthesis: none;
+  letter-spacing: 0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  color: #fff;
+  background: #bf3f2f;
+}
+
+code {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 2px 5px;
+  color: var(--ink);
+  background: #f5f5ee;
+  font-family: var(--mono);
+  font-size: 0.86em;
+}
