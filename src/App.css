@@ -5,6 +5,8 @@ main {
 .hero-section,
 .control-band,
 .leaderboard-section,
+.protocol-map,
+.diagnostic-section,
 .protocol-section {
   padding-inline: clamp(20px, 5vw, 72px);
 }
@@ -208,6 +210,65 @@ main {
   text-overflow: ellipsis;
 }
 
+.protocol-map {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding-block: 26px;
+  border-block: 1px solid var(--line-strong);
+  background: #ffffff;
+}
+
+.stage-card {
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  padding: 18px;
+  background: #fbfbf8;
+}
+
+.stage-card h2 {
+  margin: 0 0 10px;
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: clamp(1.7rem, 3vw, 2.8rem);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.stage-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.stage-card dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 18px 0 0;
+  border: 1px solid var(--line);
+  background: var(--line);
+}
+
+.stage-card dl div {
+  padding: 10px;
+  background: #fff;
+}
+
+.stage-card dt {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.stage-card dd {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-weight: 850;
+}
+
 .control-band {
   position: sticky;
   top: 0;
@@ -275,6 +336,10 @@ main {
   gap: 28px;
   align-items: end;
   margin-bottom: 26px;
+}
+
+.section-heading--single {
+  grid-template-columns: minmax(0, 0.9fr) minmax(260px, 0.65fr);
 }
 
 .section-heading h2,
@@ -467,6 +532,18 @@ main {
   color: var(--muted);
 }
 
+.table-empty,
+.empty-copy {
+  padding: 18px;
+  color: var(--muted);
+}
+
+.table-empty {
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 0.86rem;
+}
+
 .detail-panel {
   position: sticky;
   top: 96px;
@@ -491,7 +568,7 @@ main {
 
 .rank-badge {
   display: inline-flex;
-  width: 48px;
+  min-width: 64px;
   height: 48px;
   flex: 0 0 auto;
   align-items: center;
@@ -500,6 +577,7 @@ main {
   border-radius: 8px;
   background: #fff2c9;
   font-family: var(--mono);
+  font-size: 0.95rem;
   font-weight: 900;
 }
 
@@ -590,6 +668,63 @@ main {
   box-sizing: border-box;
 }
 
+.diagnostic-section {
+  padding-block: 54px 64px;
+  border-top: 1px solid var(--line-strong);
+  background: #f7f7f2;
+}
+
+.diagnostic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.diagnostic-card {
+  min-height: 210px;
+}
+
+.diagnostic-value {
+  margin: 18px 0 0;
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-weight: 750;
+  line-height: 1;
+}
+
+.random-table {
+  display: grid;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.random-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) repeat(3, minmax(150px, 0.8fr));
+  gap: 12px;
+  align-items: center;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.random-row:last-child {
+  border-bottom: 0;
+}
+
+.random-row strong {
+  color: var(--ink);
+}
+
+.random-row span {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.84rem;
+}
+
 .protocol-section {
   display: grid;
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
@@ -646,6 +781,7 @@ main {
   .hero-section,
   .workspace,
   .section-heading,
+  .protocol-map,
   .protocol-section {
     grid-template-columns: 1fr;
   }
@@ -654,7 +790,12 @@ main {
     position: static;
   }
 
-  .protocol-grid {
+  .protocol-grid,
+  .diagnostic-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .random-row {
     grid-template-columns: 1fr;
   }
 }

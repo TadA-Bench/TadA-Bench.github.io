@@ -1,7 +1,9 @@
 # TadA-Bench Leaderboard Site
 
-Interactive leaderboard website prototype for TadA-Bench 1M. This repository is
-intended to become the `TadA-Bench.github.io` organization Pages site.
+Interactive leaderboard website for TadA-Bench 1M. The site presents the
+paper-aligned future-round replay protocol: train on rounds 1-27, validate on
+round 28, and report final rankings on rounds 29-31 across DNA, RNA, and protein
+views.
 
 ## Development
 
@@ -31,6 +33,6 @@ publishes the `dist/` artifact.
 
 ## Data model
 
-Current rows in `src/data/leaderboard.ts` are internal preview placeholders.
-Before public launch, replace them with reviewed validator outputs from the
-benchmark repository.
+Rows in `src/data/leaderboard.ts` are the paper baseline values from the
+future-round DNA/RNA/protein tables. Random-split rows are shown only as an
+interpolation diagnostic and are not the official leaderboard setting.
