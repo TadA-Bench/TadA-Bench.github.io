@@ -8,10 +8,13 @@ export type RoundPhase = 'train' | 'validation' | 'test'
 
 export type MetricSet = Record<MetricKey, number>
 
+export type SplitMembershipCounts = Record<RoundPhase, number>
+
 export type BaselineEntry = {
   id: string
   modelName: string
   modelFamily: string
+  modelHref?: string
   modality: Modality
   protocol: string
   validation: MetricSet
@@ -25,6 +28,18 @@ export type SplitStage = {
   purpose: string
   dnaRnaCount: string
   proteinCount: string
+}
+
+export type DomainCountRecord = {
+  domain: number
+  nodeId: number
+  counts: Record<Modality, SplitMembershipCounts>
+}
+
+export const releasedRowCounts: Record<Modality, SplitMembershipCounts> = {
+  dna: { train: 729302, validation: 148014, test: 149884 },
+  rna: { train: 729302, validation: 148014, test: 149884 },
+  protein: { train: 256429, validation: 45208, test: 108232 },
 }
 
 export type RandomSplitProteinEntry = {
@@ -98,34 +113,30 @@ export const modalityMeta: Record<
   {
     label: string
     shortLabel: string
-    splitName: string
     accent: string
   }
 > = {
   protein: {
     label: 'Protein',
-    shortLabel: 'AA',
-    splitName: 'all.AA',
+    shortLabel: 'Protein',
     accent: '#bf3f2f',
   },
   dna: {
     label: 'DNA',
     shortLabel: 'DNA',
-    splitName: 'all.DNA',
     accent: '#1b7f72',
   },
   rna: {
     label: 'RNA',
     shortLabel: 'RNA',
-    splitName: 'all.RNA',
     accent: '#8a6417',
   },
 }
 
 export const phaseLabels: Record<RoundPhase, string> = {
-  train: 'Training evidence',
+  train: 'Training split',
   validation: 'Validation',
-  test: 'Future-round test',
+  test: 'Test split',
 }
 
 export const phaseDescriptions: Record<RoundPhase, string> = {
@@ -142,7 +153,7 @@ export function phaseForRound(round: number): RoundPhase {
 
 export const splitStages: SplitStage[] = [
   {
-    label: 'Training evidence',
+    label: 'Training set',
     rounds: 'Rounds 1-27',
     purpose: 'Earlier recorded variants and relative activity labels available to the model.',
     dnaRnaCount: '729,302',
@@ -164,11 +175,93 @@ export const splitStages: SplitStage[] = [
   },
 ]
 
+const proteinDomainCounts: SplitMembershipCounts[] = [
+  { train: 3473, validation: 0, test: 0 },
+  { train: 15974, validation: 0, test: 0 },
+  { train: 8888, validation: 0, test: 0 },
+  { train: 5095, validation: 0, test: 0 },
+  { train: 1235, validation: 0, test: 0 },
+  { train: 2416, validation: 0, test: 0 },
+  { train: 3952, validation: 0, test: 0 },
+  { train: 336, validation: 0, test: 0 },
+  { train: 28342, validation: 0, test: 0 },
+  { train: 572, validation: 0, test: 0 },
+  { train: 1439, validation: 0, test: 0 },
+  { train: 1493, validation: 0, test: 0 },
+  { train: 489, validation: 0, test: 0 },
+  { train: 7181, validation: 0, test: 0 },
+  { train: 10804, validation: 0, test: 0 },
+  { train: 3888, validation: 0, test: 0 },
+  { train: 388, validation: 0, test: 0 },
+  { train: 159, validation: 0, test: 0 },
+  { train: 197, validation: 0, test: 0 },
+  { train: 49107, validation: 0, test: 0 },
+  { train: 49296, validation: 167, test: 2 },
+  { train: 20853, validation: 35360, test: 663 },
+  { train: 101, validation: 124, test: 1 },
+  { train: 33157, validation: 33000, test: 677 },
+  { train: 19959, validation: 35590, test: 578 },
+  { train: 19654, validation: 35526, test: 601 },
+  { train: 14606, validation: 36570, test: 646 },
+  { train: 0, validation: 45208, test: 592 },
+  { train: 0, validation: 0, test: 87553 },
+  { train: 0, validation: 0, test: 21137 },
+  { train: 0, validation: 0, test: 157 },
+]
+
+const nucleicAcidDomainCounts: SplitMembershipCounts[] = [
+  { train: 6866, validation: 0, test: 0 },
+  { train: 36235, validation: 0, test: 0 },
+  { train: 25586, validation: 0, test: 0 },
+  { train: 9439, validation: 0, test: 0 },
+  { train: 3144, validation: 0, test: 0 },
+  { train: 8671, validation: 0, test: 0 },
+  { train: 12065, validation: 0, test: 0 },
+  { train: 493, validation: 0, test: 0 },
+  { train: 53293, validation: 0, test: 0 },
+  { train: 1627, validation: 0, test: 0 },
+  { train: 3620, validation: 0, test: 0 },
+  { train: 3308, validation: 0, test: 0 },
+  { train: 787, validation: 0, test: 0 },
+  { train: 16047, validation: 0, test: 0 },
+  { train: 20207, validation: 0, test: 0 },
+  { train: 7032, validation: 0, test: 0 },
+  { train: 666, validation: 0, test: 0 },
+  { train: 228, validation: 0, test: 0 },
+  { train: 296, validation: 0, test: 0 },
+  { train: 76694, validation: 0, test: 0 },
+  { train: 139374, validation: 0, test: 0 },
+  { train: 148304, validation: 214, test: 643 },
+  { train: 532, validation: 0, test: 0 },
+  { train: 147265, validation: 207, test: 573 },
+  { train: 148533, validation: 176, test: 487 },
+  { train: 148389, validation: 196, test: 508 },
+  { train: 148640, validation: 198, test: 602 },
+  { train: 148869, validation: 193, test: 555 },
+  { train: 0, validation: 148014, test: 907 },
+  { train: 0, validation: 0, test: 149660 },
+  { train: 0, validation: 0, test: 236 },
+]
+
+export const domainCountSourceNote =
+  'Counts are parsed from the released Domain metadata in each fixed Hugging Face split.'
+
+export const domainCountRecords: DomainCountRecord[] = proteinDomainCounts.map((proteinCounts, index) => ({
+  domain: index,
+  nodeId: index + 1,
+  counts: {
+    protein: proteinCounts,
+    dna: nucleicAcidDomainCounts[index],
+    rna: nucleicAcidDomainCounts[index],
+  },
+}))
+
 export const baselineEntries: BaselineEntry[] = [
   {
     id: 'dna-evo2-7b',
     modelName: 'Evo2-7B',
     modelFamily: 'Evo 2',
+    modelHref: 'https://huggingface.co/arcinstitute/evo2_7b',
     modality: 'dna',
     protocol: 'Frozen encoder probe + MLP head',
     validation: { spearman: 0.049, recallAt10: 0.1097, ndcgAt10: 0.2604 },
@@ -179,6 +272,7 @@ export const baselineEntries: BaselineEntry[] = [
     id: 'dna-evo2-40b',
     modelName: 'Evo2-40B',
     modelFamily: 'Evo 2',
+    modelHref: 'https://huggingface.co/arcinstitute/evo2_40b',
     modality: 'dna',
     protocol: 'Frozen encoder probe + MLP head',
     validation: { spearman: 0.098, recallAt10: 0.1157, ndcgAt10: 0.2702 },
@@ -189,6 +283,7 @@ export const baselineEntries: BaselineEntry[] = [
     id: 'dna-nt-50m',
     modelName: 'NT-50M',
     modelFamily: 'Nucleotide Transformer',
+    modelHref: 'https://huggingface.co/InstaDeepAI/nucleotide-transformer-50m-human-ref',
     modality: 'dna',
     protocol: 'Frozen encoder probe + MLP head',
     validation: { spearman: 0.0401, recallAt10: 0.0959, ndcgAt10: 0.2464 },
@@ -199,6 +294,7 @@ export const baselineEntries: BaselineEntry[] = [
     id: 'dna-nt-100m',
     modelName: 'NT-100M',
     modelFamily: 'Nucleotide Transformer',
+    modelHref: 'https://huggingface.co/InstaDeepAI/nucleotide-transformer-100m-human-ref',
     modality: 'dna',
     protocol: 'Frozen encoder probe + MLP head',
     validation: { spearman: 0.052, recallAt10: 0.0982, ndcgAt10: 0.2485 },
@@ -209,6 +305,7 @@ export const baselineEntries: BaselineEntry[] = [
     id: 'dna-nt-250m',
     modelName: 'NT-250M',
     modelFamily: 'Nucleotide Transformer',
+    modelHref: 'https://huggingface.co/InstaDeepAI/nucleotide-transformer-250m-human-ref',
     modality: 'dna',
     protocol: 'Frozen encoder probe + MLP head',
     validation: { spearman: 0.047, recallAt10: 0.0858, ndcgAt10: 0.2137 },
@@ -219,6 +316,7 @@ export const baselineEntries: BaselineEntry[] = [
     id: 'dna-nt-500m',
     modelName: 'NT-500M',
     modelFamily: 'Nucleotide Transformer',
+    modelHref: 'https://huggingface.co/InstaDeepAI/nucleotide-transformer-500m-human-ref',
     modality: 'dna',
     protocol: 'Frozen encoder probe + MLP head',
     validation: { spearman: 0.0361, recallAt10: 0.0985, ndcgAt10: 0.2225 },
@@ -239,6 +337,7 @@ export const baselineEntries: BaselineEntry[] = [
     id: 'rna-og-418m',
     modelName: 'OG-418M',
     modelFamily: 'OmniGenome',
+    modelHref: 'https://huggingface.co/anonymous8/OmniGenome-418M',
     modality: 'rna',
     protocol: 'Frozen encoder probe + MLP head',
     validation: { spearman: 0.0078, recallAt10: 0.0949, ndcgAt10: 0.2391 },
@@ -249,6 +348,7 @@ export const baselineEntries: BaselineEntry[] = [
     id: 'protein-esm2-35m',
     modelName: 'ESM2-35M',
     modelFamily: 'ESM2',
+    modelHref: 'https://huggingface.co/facebook/esm2_t12_35M_UR50D',
     modality: 'protein',
     protocol: 'Frozen encoder probe + MLP head',
     validation: { spearman: 0.1591, recallAt10: 0.1449, ndcgAt10: 0.6533 },
@@ -259,6 +359,7 @@ export const baselineEntries: BaselineEntry[] = [
     id: 'protein-esm2-150m',
     modelName: 'ESM2-150M',
     modelFamily: 'ESM2',
+    modelHref: 'https://huggingface.co/facebook/esm2_t30_150M_UR50D',
     modality: 'protein',
     protocol: 'Frozen encoder probe + MLP head',
     validation: { spearman: 0.1458, recallAt10: 0.142, ndcgAt10: 0.6569 },
@@ -269,6 +370,7 @@ export const baselineEntries: BaselineEntry[] = [
     id: 'protein-esm2-650m',
     modelName: 'ESM2-650M',
     modelFamily: 'ESM2',
+    modelHref: 'https://huggingface.co/facebook/esm2_t33_650M_UR50D',
     modality: 'protein',
     protocol: 'Frozen encoder probe + MLP head',
     validation: { spearman: 0.1423, recallAt10: 0.1473, ndcgAt10: 0.653 },
@@ -279,6 +381,7 @@ export const baselineEntries: BaselineEntry[] = [
     id: 'protein-prot-bert',
     modelName: 'Prot-BERT',
     modelFamily: 'ProtTrans',
+    modelHref: 'https://huggingface.co/Rostlab/prot_bert',
     modality: 'protein',
     protocol: 'Frozen encoder probe + MLP head',
     validation: { spearman: 0.128, recallAt10: 0.1128, ndcgAt10: 0.6534 },
@@ -289,6 +392,7 @@ export const baselineEntries: BaselineEntry[] = [
     id: 'protein-prot-xlnet',
     modelName: 'Prot-XLNET',
     modelFamily: 'ProtTrans',
+    modelHref: 'https://huggingface.co/Rostlab/prot_xlnet',
     modality: 'protein',
     protocol: 'Frozen encoder probe + MLP head',
     validation: { spearman: 0.157, recallAt10: 0.1261, ndcgAt10: 0.6589 },
@@ -299,6 +403,7 @@ export const baselineEntries: BaselineEntry[] = [
     id: 'protein-esmc-300m',
     modelName: 'ESMC-300M',
     modelFamily: 'ESM Cambrian',
+    modelHref: 'https://huggingface.co/EvolutionaryScale/esmc-300m-2024-12',
     modality: 'protein',
     protocol: 'Frozen encoder probe + MLP head',
     validation: { spearman: 0.1498, recallAt10: 0.1199, ndcgAt10: 0.6495 },
@@ -309,6 +414,7 @@ export const baselineEntries: BaselineEntry[] = [
     id: 'protein-esmc-600m',
     modelName: 'ESMC-600M',
     modelFamily: 'ESM Cambrian',
+    modelHref: 'https://huggingface.co/EvolutionaryScale/esmc-600m-2024-12',
     modality: 'protein',
     protocol: 'Frozen encoder probe + MLP head',
     validation: { spearman: 0.1452, recallAt10: 0.1206, ndcgAt10: 0.6397 },

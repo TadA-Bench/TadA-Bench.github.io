@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react'
+import { useMemo, useState, type CSSProperties } from 'react'
 import {
   ArrowDownUp,
   BarChart3,
@@ -17,16 +17,16 @@ import './App.css'
 import {
   baselineEntries,
   citationBibtex,
+  domainCountRecords,
+  domainCountSourceNote,
   metricDescriptions,
   metricLabels,
   modalityMeta,
   paperAffiliations,
   paperAuthors,
   paperTitle,
-  phaseDescriptions,
-  phaseForRound,
-  phaseLabels,
   randomSplitProteinControls,
+  releasedRowCounts,
   resourceLinks,
   splitDescriptions,
   splitLabels,
@@ -35,54 +35,24 @@ import {
   type Modality,
   type RoundPhase,
   type SplitKey,
+  type SplitMembershipCounts,
 } from './data/baselines'
 
 const metricKeys = Object.keys(metricLabels) as MetricKey[]
-const modalities = Object.keys(modalityMeta) as Modality[]
+const modalities: Modality[] = ['dna', 'rna', 'protein']
 const splitKeys = Object.keys(splitLabels) as SplitKey[]
-const graphPhases: Array<RoundPhase | 'all'> = ['all', 'train', 'validation', 'test']
-const graphWidth = 920
-const graphHeight = 320
-const graphLeft = 64
-const graphRight = 856
-const graphBaselineY = 172
-const graphNodeRadius = 11
-const graphNodeStep = (graphRight - graphLeft) / 30
-
-type GraphPoint = {
-  x: number
-  y: number
-}
-
-type GraphNode = {
-  id: string
-  round: number
-  phase: RoundPhase
-  label: string
-}
+const splitPhases: RoundPhase[] = ['train', 'validation', 'test']
 
 function formatScore(value: number) {
   return value.toFixed(4)
 }
 
-function positionForRound(round: number): GraphPoint {
-  return {
-    x: graphLeft + (round - 1) * graphNodeStep,
-    y: graphBaselineY,
-  }
+function formatCount(value: number) {
+  return new Intl.NumberFormat('en-US').format(value)
 }
 
-function makeGraphNodes(): GraphNode[] {
-  return Array.from({ length: 31 }, (_, index) => {
-    const round = index + 1
-    const phase = phaseForRound(round)
-    return {
-      id: `round-${round}`,
-      round,
-      phase,
-      label: `Round ${round}`,
-    }
-  })
+function splitCountTotal(counts: SplitMembershipCounts) {
+  return counts.train + counts.validation + counts.test
 }
 
 function ModalityIcon({ modality }: { modality: Modality }) {
@@ -91,266 +61,191 @@ function ModalityIcon({ modality }: { modality: Modality }) {
   return <BarChart3 aria-hidden="true" />
 }
 
-function isNeighbor(a: number, b: number) {
-  return Math.abs(a - b) === 1
+const datasetSplitLabels: Record<RoundPhase, string> = {
+  train: 'Training set',
+  validation: 'Validation set',
+  test: 'Test set',
 }
 
-const phaseRanges: Record<RoundPhase, string> = {
-  train: 'R1-R27',
-  validation: 'R28',
-  test: 'R29-R31',
+const splitRoundLabels: Record<RoundPhase, string> = {
+  train: 'Rounds 1-27',
+  validation: 'Round 28',
+  test: 'Rounds 29-31',
 }
 
-const graphLegendLabels: Record<RoundPhase, string> = {
-  train: 'Train R1-R27',
-  validation: 'Val R28',
-  test: 'Test R29-R31',
+function formatCompactCount(value: number) {
+  return new Intl.NumberFormat('en-US', {
+    maximumFractionDigits: 1,
+    notation: 'compact',
+  }).format(value)
 }
 
-function splitBandGeometry(phase: RoundPhase) {
-  const roundRange = {
-    train: [1, 27],
-    validation: [28, 28],
-    test: [29, 31],
-  }[phase]
-  const xStart = positionForRound(roundRange[0]).x - 22
-  const xEnd = positionForRound(roundRange[1]).x + 22
-  return {
-    x: xStart,
-    y: 80,
-    width: xEnd - xStart,
-    height: 156,
-  }
-}
-
-function shouldShowRoundLabel(round: number, activeRound: number, selectedRound: number) {
-  return round === 1 || round === 5 || round === 10 || round === 15 || round === 20 ||
-    round === 25 || round === 27 || round >= 28 || round === activeRound || round === selectedRound
-}
-
-function RoundGraphSection() {
-  const graphCanvasRef = useRef<HTMLDivElement | null>(null)
-  const [hoveredRound, setHoveredRound] = useState<number | null>(null)
-  const [selectedRound, setSelectedRound] = useState<number>(29)
-  const [phaseFilter, setPhaseFilter] = useState<RoundPhase | 'all'>('all')
-
-  const nodes = useMemo(() => makeGraphNodes(), [])
-  const selectedNode = nodes.find((node) => node.round === (hoveredRound ?? selectedRound)) ?? nodes[28]
-  const activeRound = hoveredRound ?? selectedRound
-  const visibleNodes = nodes.filter((node) => phaseFilter === 'all' || node.phase === phaseFilter)
-  const visibleNodeIds = new Set(visibleNodes.map((node) => node.id))
-
-  const chronologyEdges = nodes.slice(1).map((node, index) => ({
-    source: nodes[index],
-    target: node,
-  }))
-
-  useEffect(() => {
-    const canvas = graphCanvasRef.current
-    if (!canvas || canvas.scrollWidth <= canvas.clientWidth) return
-
-    const selectedX = (positionForRound(selectedRound).x / graphWidth) * canvas.scrollWidth
-    canvas.scrollTo({
-      left: Math.max(0, selectedX - canvas.clientWidth / 2),
-      behavior: 'smooth',
-    })
-  }, [selectedRound])
-
-  function nodeIsMuted(node: GraphNode) {
-    if (phaseFilter !== 'all' && node.phase !== phaseFilter) return true
-    return node.round !== activeRound && !isNeighbor(node.round, activeRound)
-  }
-
-  function edgeIsActive(source: GraphNode, target: GraphNode) {
-    return source.round === activeRound || target.round === activeRound
-  }
-
-  function selectPhaseFilter(nextPhase: RoundPhase | 'all') {
-    setPhaseFilter(nextPhase)
-    setHoveredRound(null)
-    if (nextPhase === 'all') return
-    const firstRoundInPhase = nodes.find((node) => node.phase === nextPhase)
-    if (firstRoundInPhase) setSelectedRound(firstRoundInPhase.round)
-  }
+function DataOverviewSection({
+  activeDataModality,
+  setActiveDataModality,
+}: {
+  activeDataModality: Modality
+  setActiveDataModality: (modality: Modality) => void
+}) {
+  const [activeDomain, setActiveDomain] = useState<number | null>(null)
+  const rowCounts = releasedRowCounts[activeDataModality]
+  const totalRows = splitCountTotal(rowCounts)
+  const maxDomainSplitCount = Math.max(
+    ...domainCountRecords.flatMap((record) => splitPhases.map((phase) => record.counts[activeDataModality][phase])),
+    1,
+  )
+  const activeDomainRecord =
+    activeDomain === null ? null : domainCountRecords.find((record) => record.domain === activeDomain) ?? null
+  const activeDomainCounts = activeDomainRecord?.counts[activeDataModality] ?? null
 
   return (
-    <section className="round-graph-section" aria-labelledby="round-graph-heading">
+    <section className="data-section" aria-labelledby="data-heading">
       <div className="section-heading">
         <div>
-          <p className="eyebrow">Fixed future-round replay</p>
-          <h2 id="round-graph-heading">Recorded PANCE rounds and split roles.</h2>
+          <p className="eyebrow">Dataset</p>
+          <h2 id="data-heading">Released views and fixed replay split.</h2>
         </div>
         <p>
-          Color marks the fixed split: rounds 1-27 for training evidence, round 28 for validation, and rounds 29-31
-          for future-round testing. Lines connect adjacent recorded rounds only.
+          The released Hugging Face dataset contains DNA, RNA, and protein sequence views. The benchmark task uses
+          rounds 1-27 for training, round 28 for validation, and rounds 29-31 for testing.
         </p>
       </div>
 
-      <div className="graph-controls" aria-label="Round graph controls">
-        <div className="metric-toggle" aria-label="Split focus">
-          {graphPhases.map((phase) => (
+      <div className="data-controls" aria-label="Dataset view controls">
+        <div className="tabs" aria-label="Released view">
+          {modalities.map((modality) => (
             <button
-              aria-pressed={phaseFilter === phase}
-              className="metric-button"
-              data-active={phaseFilter === phase}
-              key={phase}
-              onClick={() => selectPhaseFilter(phase)}
+              aria-pressed={activeDataModality === modality}
+              className="tab-button"
+              key={modality}
+              onClick={() => setActiveDataModality(modality)}
+              style={{ '--tab-accent': modalityMeta[modality].accent } as CSSProperties}
               type="button"
             >
-              <Filter aria-hidden="true" />
-              {phase === 'all' ? 'All rounds' : graphLegendLabels[phase]}
+              <ModalityIcon modality={modality} />
+              {modalityMeta[modality].label}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="graph-workspace">
-        <div className="graph-panel">
-          <div className="graph-canvas" ref={graphCanvasRef}>
-            <svg
-              aria-labelledby="round-graph-svg-title round-graph-svg-desc"
-              className="round-graph"
-              role="group"
-              viewBox={`0 0 ${graphWidth} ${graphHeight}`}
-            >
-              <title id="round-graph-svg-title">Interactive split map of 31 recorded TadA rounds</title>
-              <desc id="round-graph-svg-desc">
-                Nodes represent recorded PANCE rounds. Lines show adjacent recorded order only and do not encode
-                ancestry, sequence similarity, or sample size.
-              </desc>
+      <div className="data-overview">
+        <article className="split-overview-panel">
+          <div className="split-overview-header">
+            <div>
+              <p className="eyebrow">{modalityMeta[activeDataModality].shortLabel} view</p>
+              <h3>{formatCount(totalRows)} released rows</h3>
+            </div>
+          </div>
 
-              <g className="graph-bands" aria-hidden="true">
-                {(['train', 'validation', 'test'] as RoundPhase[]).map((phase) => {
-                  const band = splitBandGeometry(phase)
-                  return (
-                    <g key={phase}>
-                      <rect
+          <div className="split-row-list" aria-label={`${modalityMeta[activeDataModality].label} released split rows`}>
+            {splitPhases.map((phase) => {
+              const count = rowCounts[phase]
+              const share = count / totalRows
+              return (
+                <div className="split-row" data-phase={phase} key={phase}>
+                  <div className="split-row-label">
+                    <strong>{datasetSplitLabels[phase]}</strong>
+                    <span>{splitRoundLabels[phase]}</span>
+                  </div>
+                  <div className="split-row-meter" aria-hidden="true">
+                    <i style={{ transform: `scaleX(${share})` }} />
+                  </div>
+                  <div className="split-row-count">
+                    <strong>{formatCount(count)}</strong>
+                    <span>{Math.round(share * 100)}%</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </article>
+
+        <article className="domain-audit-panel">
+          <div>
+            <p className="eyebrow">Domain counts</p>
+            <h3>Domain by split matrix</h3>
+            <p>
+              {domainCountSourceNote} The D0-D30 labels are released Domain metadata labels, separate from the
+              train/validation/test split definition.
+            </p>
+          </div>
+          <div className="domain-matrix-wrap">
+            <div className="domain-matrix" aria-label="Domain metadata counts by replay split">
+              <span className="domain-matrix-corner">Split</span>
+              {domainCountRecords.map((record) => (
+                <button
+                  aria-pressed={activeDomain === record.domain}
+                  className="domain-column-header"
+                  key={record.domain}
+                  onClick={() => setActiveDomain(record.domain)}
+                  type="button"
+                >
+                  D{record.domain}
+                </button>
+              ))}
+              {splitPhases.map((phase) => (
+                <div className="domain-matrix-row" key={phase}>
+                  <span className="domain-row-label">
+                    <strong>{datasetSplitLabels[phase]}</strong>
+                    <small>{splitRoundLabels[phase]}</small>
+                  </span>
+                  {domainCountRecords.map((record) => {
+                    const count = record.counts[activeDataModality][phase]
+                    const intensity = Math.max(0.08, Math.min(0.92, Math.log1p(count) / Math.log1p(maxDomainSplitCount)))
+                    return (
+                      <button
+                        aria-label={`Domain D${record.domain}, ${datasetSplitLabels[phase]}, ${formatCount(count)} rows`}
+                        className="domain-cell"
+                        data-active-domain={activeDomain === record.domain}
+                        data-empty={count === 0}
                         data-phase={phase}
-                        height={band.height}
-                        rx="6"
-                        width={band.width}
-                        x={band.x}
-                        y={band.y}
-                      />
-                    </g>
-                  )
-                })}
-              </g>
-
-              <g className="graph-edges graph-edges--chronology" aria-hidden="true">
-                {chronologyEdges.map(({ source, target }) => {
-                  const sourcePosition = positionForRound(source.round)
-                  const targetPosition = positionForRound(target.round)
-                  const visible = visibleNodeIds.has(source.id) && visibleNodeIds.has(target.id)
-                  return (
-                    <line
-                      data-active={edgeIsActive(source, target)}
-                      data-muted={!visible}
-                      key={`${source.id}-${target.id}`}
-                      x1={sourcePosition.x}
-                      x2={targetPosition.x}
-                      y1={sourcePosition.y}
-                      y2={targetPosition.y}
-                    />
-                  )
-                })}
-              </g>
-
-              <g className="graph-nodes">
-                {nodes.map((node) => {
-                  const position = positionForRound(node.round)
-                  const muted = nodeIsMuted(node)
-                  const selected = node.round === selectedRound
-                  const active = node.round === activeRound
-                  const visible = visibleNodeIds.has(node.id)
-                  const interactiveProps = visible
-                    ? {
-                        'aria-label': `${node.label}, ${phaseLabels[node.phase]}`,
-                        'aria-pressed': selected,
-                        onClick: () => setSelectedRound(node.round),
-                        onFocus: () => setHoveredRound(node.round),
-                        onKeyDown: (event: KeyboardEvent<SVGGElement>) => {
-                          if (event.key === 'Enter' || event.key === ' ') {
-                            event.preventDefault()
-                            setSelectedRound(node.round)
-                          }
-                          if (event.key === 'Escape') setHoveredRound(null)
-                        },
-                        onPointerEnter: () => setHoveredRound(node.round),
-                        onPointerLeave: () => setHoveredRound(null),
-                        role: 'button',
-                        tabIndex: 0,
-                      }
-                    : {
-                        'aria-hidden': true,
-                      }
-                  return (
-                    <g
-                      className="graph-node"
-                      data-active={active}
-                      data-muted={muted}
-                      data-phase={node.phase}
-                      data-selected={selected}
-                      key={node.id}
-                      transform={`translate(${position.x} ${position.y})`}
-                      {...interactiveProps}
-                    >
-                      <circle className="graph-hitbox" r="22" />
-                      <circle className="graph-dot" r={graphNodeRadius} />
-                      {shouldShowRoundLabel(node.round, activeRound, selectedRound) && (
-                        <text y={graphNodeRadius + 18}>R{node.round}</text>
-                      )}
-                    </g>
-                  )
-                })}
-              </g>
-
-              <g className="graph-axis-labels" aria-hidden="true">
-                {[1, 5, 10, 15, 20, 25, 28, 31].map((round) => (
-                  <text key={round} x={positionForRound(round).x} y="274">
-                    {round}
-                  </text>
-                ))}
-              </g>
-            </svg>
-          </div>
-
-          <div className="graph-legend" aria-label="Graph legend">
-            {(['train', 'validation', 'test'] as RoundPhase[]).map((phase) => (
-              <span data-phase={phase} key={phase}>
-                {graphLegendLabels[phase]}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <aside className="graph-detail" aria-label="Selected round details">
-          <p className="eyebrow">Highlighted round</p>
-          <h3>R{selectedNode.round}</h3>
-          <p>{phaseDescriptions[selectedNode.phase]}</p>
-
-          <dl className="detail-grid">
-            <div>
-              <dt>Fixed split</dt>
-              <dd>{phaseRanges[selectedNode.phase]}</dd>
+                        key={`${phase}-${record.domain}`}
+                        onClick={() => setActiveDomain(record.domain)}
+                        style={{ '--cell-alpha': intensity.toFixed(3) } as CSSProperties}
+                        title={`D${record.domain} · ${datasetSplitLabels[phase]} · ${formatCount(count)} rows`}
+                        type="button"
+                      >
+                        <span>{count === 0 ? '0' : formatCompactCount(count)}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              ))}
             </div>
-            <div>
-              <dt>Role</dt>
-              <dd>{phaseLabels[selectedNode.phase]}</dd>
-            </div>
-          </dl>
-
-          <p className="graph-note">
-            Counts shown on the protocol cards are split-level row totals.
-          </p>
-        </aside>
+          </div>
+          <div className="domain-detail" data-empty={activeDomainRecord === null}>
+            {activeDomainRecord && activeDomainCounts ? (
+              <>
+                <div>
+                  <p className="eyebrow">Selected domain</p>
+                  <h4>D{activeDomainRecord.domain}</h4>
+                </div>
+                <dl>
+                  {splitPhases.map((phase) => (
+                    <div key={phase}>
+                      <dt>{datasetSplitLabels[phase]}</dt>
+                      <dd>{formatCount(activeDomainCounts[phase])}</dd>
+                    </div>
+                  ))}
+                  <div>
+                    <dt>Domain total</dt>
+                    <dd>{formatCount(splitCountTotal(activeDomainCounts))}</dd>
+                  </div>
+                </dl>
+              </>
+            ) : (
+              <p>Click a domain column or cell to inspect its split counts.</p>
+            )}
+          </div>
+        </article>
       </div>
     </section>
   )
 }
 
 function App() {
-  const [activeModality, setActiveModality] = useState<Modality>('protein')
+  const [activeModality, setActiveModality] = useState<Modality>('dna')
   const [activeMetric, setActiveMetric] = useState<MetricKey>('spearman')
   const [activeSplit, setActiveSplit] = useState<SplitKey>('test')
   const [query, setQuery] = useState('')
@@ -370,13 +265,19 @@ function App() {
     activeSplit === 'test'
       ? 'Paper baselines on the fixed future-round test set.'
       : 'Paper baseline table sorted by validation metrics.'
+  const visibleMetricMax = Math.max(
+    ...visibleEntries.flatMap((entry) => [entry.validation[activeMetric], entry.test[activeMetric]]),
+    0.001,
+  )
+  const topEntries = visibleEntries.slice(0, 3)
 
   return (
     <main>
       <section className="hero-section" aria-labelledby="page-title">
         <div className="hero-copy">
           <p className="eyebrow">ICML 2026</p>
-          <h1 id="page-title">{paperTitle}</h1>
+          <h1 id="page-title">TadA-Bench</h1>
+          <p className="hero-paper-title">{paperTitle}</p>
           <p className="hero-copy__lead">
             TadA-Bench is a million-variant wet-lab replay benchmark from 31 TadA directed-evolution rounds.
             Models use earlier recorded variants and activity labels to rank variants from later rounds.
@@ -436,7 +337,7 @@ function App() {
         ))}
       </section>
 
-      <RoundGraphSection />
+      <DataOverviewSection activeDataModality={activeModality} setActiveDataModality={setActiveModality} />
 
       <section className="control-band" aria-label="Baseline sorting controls">
         <div className="tabs" aria-label="Sequence view">
@@ -501,6 +402,37 @@ function App() {
           </p>
         </div>
 
+        <div className="baseline-strips" aria-label="Top baseline metric comparison">
+          {topEntries.map((entry, index) => (
+            <article className="baseline-strip" key={entry.id}>
+              <span className="strip-rank">{index + 1}</span>
+              <div className="strip-method">
+                {entry.modelHref ? (
+                  <a href={entry.modelHref} target="_blank" rel="noreferrer">
+                    {entry.modelName}
+                    <ExternalLink aria-hidden="true" />
+                  </a>
+                ) : (
+                  <strong>{entry.modelName}</strong>
+                )}
+                <small>{entry.modelFamily}</small>
+              </div>
+              {(['validation', 'test'] as SplitKey[]).map((split) => (
+                <div className="strip-metric" key={split}>
+                  <span>
+                    {splitLabels[split]} {metricLabels[activeMetric]}
+                    <em>{formatScore(entry[split][activeMetric])}</em>
+                  </span>
+                  <i
+                    aria-hidden="true"
+                    style={{ transform: `scaleX(${entry[split][activeMetric] / visibleMetricMax})` }}
+                  />
+                </div>
+              ))}
+            </article>
+          ))}
+        </div>
+
         <div className="table-panel">
           <div className="table-toolbar">
             <label className="search-box">
@@ -515,7 +447,7 @@ function App() {
             </label>
             <span className="filter-pill">
               <Filter aria-hidden="true" />
-              {modalityMeta[activeModality].splitName}.{activeSplit === 'validation' ? 'val' : 'test'}
+              {modalityMeta[activeModality].label} view · {splitLabels[activeSplit]} split
             </span>
           </div>
 
@@ -539,7 +471,14 @@ function App() {
                     <td className="rank-cell">{index + 1}</td>
                     <td>
                       <span className="method-cell">
-                        <strong>{entry.modelName}</strong>
+                        {entry.modelHref ? (
+                          <a className="model-link" href={entry.modelHref} target="_blank" rel="noreferrer">
+                            {entry.modelName}
+                            <ExternalLink aria-hidden="true" />
+                          </a>
+                        ) : (
+                          <strong>{entry.modelName}</strong>
+                        )}
                         <small>{entry.modelFamily}</small>
                       </span>
                     </td>
@@ -566,11 +505,11 @@ function App() {
         <div className="section-heading section-heading--single">
           <div>
             <p className="eyebrow">Interpretation</p>
-            <h2 id="diagnostic-heading">Random split is an interpolation control.</h2>
+            <h2 id="diagnostic-heading">Interpolation control, not the benchmark leaderboard.</h2>
           </div>
           <p>
-            The paper uses the 8:1:1 random split to test label learnability under interpolation. Future-round replay
-            remains the benchmark task.
+            The paper uses the 8:1:1 random split to test label learnability under interpolation. These scores are
+            separate from the fixed future-round leaderboard above.
           </p>
         </div>
 
