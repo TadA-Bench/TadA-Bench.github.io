@@ -2,7 +2,7 @@
   "name": "tada-bench-github-io",
   "private": true,
   "version": "0.1.0",
-  "description": "Interactive TadA-Bench leaderboard website.",
+  "description": "TadA-Bench paper companion website.",
   "type": "module",
   "scripts": {
     "dev": "vite",

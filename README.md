@@ -1,9 +1,17 @@
-# TadA-Bench Leaderboard Site
+# TadA-Bench Paper Site
 
-Interactive leaderboard website for TadA-Bench 1M. The site presents the
-paper-aligned future-round replay protocol: train on rounds 1-27, validate on
-round 28, and report final rankings on rounds 29-31 across DNA, RNA, and protein
-views.
+React/Vite paper companion site for TadA-Bench.
+
+The site presents:
+
+- paper title, authors, venue, code, data, and BibTeX;
+- the fixed future-round replay protocol;
+- a 31-round split map of the recorded TadA campaign;
+- paper baseline tables for the DNA, RNA, and protein views;
+- protein-view random-split interpolation rows from the paper.
+
+The public benchmark name is `TadA-Bench`. The Hugging Face dataset slug remains
+`JinGao/TadABench-1M`.
 
 ## Development
 
@@ -19,20 +27,12 @@ npm run lint
 npm run build
 ```
 
-## Deployment target
+## Data Sources
 
-For a root organization GitHub Pages site, create the repository:
+Paper baseline values are stored in `src/data/baselines.ts`. The round graph
+follows the paper's recorded PANCE rounds and fixed split roles: rounds 1-27
+for training evidence, round 28 for validation, and rounds 29-31 for the
+future-round test set.
 
-```text
-TadA-Bench/TadA-Bench.github.io
-```
-
-Then push this repository to `main` and enable GitHub Pages through GitHub
-Actions. The workflow in `.github/workflows/deploy.yml` builds the Vite app and
-publishes the `dist/` artifact.
-
-## Data model
-
-Rows in `src/data/leaderboard.ts` are the paper baseline values from the
-future-round DNA/RNA/protein tables. Random-split rows are shown only as an
-interpolation diagnostic and are not the official leaderboard setting.
+The graph encodes recorded rounds and split roles only. Sample sizes are
+reported at the split level.
