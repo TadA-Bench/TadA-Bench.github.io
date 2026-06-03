@@ -28,7 +28,6 @@ import {
   resourceLinks,
   splitDescriptions,
   splitLabels,
-  splitOverlapAudit,
   splitStages,
   type MetricKey,
   type Modality,
@@ -60,6 +59,12 @@ function ModalityIcon({ modality }: { modality: Modality }) {
   return <BarChart3 aria-hidden="true" />
 }
 
+function ResourceIcon({ label }: { label: string }) {
+  if (label === 'Paper') return <FileText aria-hidden="true" />
+  if (label === 'Dataset') return <Database aria-hidden="true" />
+  return <Code2 aria-hidden="true" />
+}
+
 const datasetSplitLabels: Record<RoundPhase, string> = {
   train: 'Training set',
   validation: 'Validation set',
@@ -72,11 +77,205 @@ const splitRoundLabels: Record<RoundPhase, string> = {
   test: 'Rounds 29-31',
 }
 
-const splitAuditPairs = [
-  { key: 'trainValidation', label: 'Train-Val' },
-  { key: 'trainTest', label: 'Train-Test' },
-  { key: 'validationTest', label: 'Val-Test' },
+const storyPillars = [
+  {
+    key: 'chronology',
+    label: 'Chronology',
+    title: 'Recorded rounds become a past-to-future task.',
+    body: 'The campaign order is preserved: earlier wet-lab evidence trains the model, while later rounds define the ranking target.',
+  },
+  {
+    key: 'scale',
+    label: 'Scale',
+    title: 'Million-scale coverage makes discovery measurable.',
+    body: 'Dense campaign coverage gives the replay enough variants to test candidate prioritization beyond small static screens.',
+  },
+  {
+    key: 'consistency',
+    label: 'Consistency',
+    title: 'Seq2Graph builds one activity scale.',
+    body: 'Within-round rankings and overlap anchors reconcile noisy NGS selections into comparable cross-round labels.',
+  },
 ] as const
+
+const seq2GraphSteps = ['NGS selections', 'Within-round ranks', 'Overlap anchors', 'Cycle cleanup', 'Activity scores']
+
+const variantDots = Array.from({ length: 54 }, (_, index) => ({
+  x: 9 + ((index * 37) % 82),
+  y: 13 + ((index * 53) % 72),
+  delay: (index % 9) * 0.12,
+  size: 3 + (index % 4),
+}))
+
+function StoryVisual({ type }: { type: (typeof storyPillars)[number]['key'] }) {
+  if (type === 'chronology') {
+    return (
+      <div className="mini-timeline" aria-hidden="true">
+        <span data-state="train" />
+        <span data-state="train" />
+        <span data-state="train" />
+        <i />
+        <span data-state="validation" />
+        <span data-state="test" />
+      </div>
+    )
+  }
+
+  if (type === 'scale') {
+    return (
+      <div className="variant-field" aria-hidden="true">
+        {variantDots.map((dot, index) => (
+          <span
+            key={index}
+            style={
+              {
+                '--dot-x': `${dot.x}%`,
+                '--dot-y': `${dot.y}%`,
+                '--dot-delay': `${dot.delay}s`,
+                '--dot-size': `${dot.size}px`,
+              } as CSSProperties
+            }
+          />
+        ))}
+      </div>
+    )
+  }
+
+  return (
+    <div className="anchor-map" aria-hidden="true">
+      <span className="anchor-cluster" data-cluster="i">
+        <i />
+        <i />
+        <i />
+      </span>
+      <b />
+      <span className="anchor-cluster" data-cluster="j">
+        <i />
+        <i />
+        <i />
+      </span>
+      <b />
+      <span className="anchor-cluster" data-cluster="k">
+        <i />
+        <i />
+        <i />
+      </span>
+    </div>
+  )
+}
+
+function StorylineSection() {
+  return (
+    <section className="story-section" aria-labelledby="story-heading">
+      <div className="section-heading">
+        <div>
+          <p className="eyebrow">Benchmark idea</p>
+          <h2 id="story-heading">From a recorded TadA campaign to replayed future-round decisions.</h2>
+        </div>
+        <p>
+          TadA-Bench isolates the ranking module a future protein-engineering workflow would need before acquisition
+          policies or new wet-lab actions are added.
+        </p>
+      </div>
+
+      <div className="story-board">
+        <div className="story-main">
+          <div className="story-pillars" aria-label="Benchmark construction properties">
+            {storyPillars.map((pillar, index) => (
+              <article className="story-pillar" data-pillar={pillar.key} key={pillar.key}>
+                <div className="pillar-kicker">
+                  <span>{index + 1}</span>
+                  {pillar.label}
+                </div>
+                <h3>{pillar.title}</h3>
+                <p>{pillar.body}</p>
+                <StoryVisual type={pillar.key} />
+              </article>
+            ))}
+          </div>
+
+          <div className="seq2graph-strip" aria-label="Seq2Graph construction steps">
+            <p className="eyebrow">How we build it: Seq2Graph</p>
+            <div className="seq2graph-steps">
+              {seq2GraphSteps.map((step, index) => (
+                <span key={step}>
+                  <b>{index + 1}</b>
+                  {step}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="replay-panel" aria-label="Fixed-data replay evaluation">
+            <div>
+              <p className="eyebrow">How we evaluate</p>
+              <h3>Models rank later recorded variants from earlier evidence.</h3>
+            </div>
+            <div className="replay-track" aria-hidden="true">
+              <span data-phase="train">Train 1-27</span>
+              <i />
+              <span data-phase="validation">Validate 28</span>
+              <i />
+              <span data-phase="test">Test 29-31</span>
+              <i />
+              <span data-phase="rank">Top-k shortlist</span>
+            </div>
+            <div className="discovery-contrast">
+              <div className="rank-sketch" data-mode="random">
+                <strong>Random split control</strong>
+                <span className="rank-axis" />
+              </div>
+              <div className="rank-sketch" data-mode="future">
+                <strong>Future-round replay</strong>
+                <span className="rank-scatter">
+                  <i />
+                  <i />
+                  <i />
+                  <i />
+                  <i />
+                  <i />
+                  <i />
+                </span>
+              </div>
+              <div className="rank-sketch" data-mode="coverage">
+                <strong>Coverage over local density</strong>
+                <span className="coverage-node">
+                  <i />
+                  <i />
+                  <i />
+                  <i />
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside className="story-takeaway" aria-label="Benchmark takeaway">
+          <p className="eyebrow">Key takeaway</p>
+          <h3>Known-data interpolation is not future-round discovery.</h3>
+          <p>
+            The benchmark asks whether a model can use recorded wet-lab history to prioritize later candidates under a
+            fixed replay protocol.
+          </p>
+          <dl>
+            <div>
+              <dt>Input evidence</dt>
+              <dd>Earlier rounds</dd>
+            </div>
+            <div>
+              <dt>Decision proxy</dt>
+              <dd>Candidate ranking</dd>
+            </div>
+            <div>
+              <dt>Offline boundary</dt>
+              <dd>No new experiments</dd>
+            </div>
+          </dl>
+        </aside>
+      </div>
+    </section>
+  )
+}
 
 function DataOverviewSection({
   activeDataModality,
@@ -146,44 +345,6 @@ function DataOverviewSection({
             })}
           </div>
         </article>
-
-        <article className="split-audit-panel">
-          <div>
-            <p className="eyebrow">Split integrity</p>
-            <h3>Exact sequence overlap is zero.</h3>
-            <p>
-              Official split membership is the Hugging Face split name. The released <code>Domain</code> field is
-              multi-valued metadata, not the train/validation/test definition.
-            </p>
-          </div>
-          <div className="split-audit-table-wrap">
-            <div className="split-audit-grid" role="table" aria-label="Exact sequence overlap across released splits">
-              <div className="split-audit-head" role="row">
-                <span role="columnheader">View</span>
-                {splitAuditPairs.map((pair) => (
-                  <span key={pair.key} role="columnheader">
-                    {pair.label}
-                  </span>
-                ))}
-              </div>
-              {modalities.map((modality) => (
-                <div
-                  className="split-audit-row"
-                  data-active={activeDataModality === modality}
-                  key={modality}
-                  role="row"
-                >
-                  <strong role="rowheader">{modalityMeta[modality].label}</strong>
-                  {splitAuditPairs.map((pair) => (
-                    <span key={pair.key} role="cell">
-                      {formatCount(splitOverlapAudit[modality][pair.key])}
-                    </span>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-        </article>
       </div>
     </section>
   )
@@ -228,7 +389,7 @@ function App() {
           <div className="hero-actions" aria-label="Primary links">
             {resourceLinks.map((link) => (
               <a className="icon-button" href={link.href} key={link.label} target="_blank" rel="noreferrer">
-                {link.label === 'Dataset' ? <Database aria-hidden="true" /> : <Code2 aria-hidden="true" />}
+                <ResourceIcon label={link.label} />
                 {link.label}
                 <ExternalLink aria-hidden="true" />
               </a>
@@ -277,6 +438,8 @@ function App() {
           </article>
         ))}
       </section>
+
+      <StorylineSection />
 
       <DataOverviewSection activeDataModality={activeModality} setActiveDataModality={setActiveModality} />
 
@@ -499,6 +662,11 @@ function App() {
           <code>{citationBibtex}</code>
         </pre>
         <div className="citation-links" aria-label="Citation resources">
+          <a href="https://arxiv.org/abs/2606.02624v1" target="_blank" rel="noreferrer">
+            <FileText aria-hidden="true" />
+            arXiv paper
+            <ExternalLink aria-hidden="true" />
+          </a>
           <a href="https://huggingface.co/datasets/JinGao/TadABench-1M" target="_blank" rel="noreferrer">
             <BookOpen aria-hidden="true" />
             Hugging Face dataset

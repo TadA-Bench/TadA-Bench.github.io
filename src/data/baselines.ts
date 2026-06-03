@@ -10,12 +10,6 @@ export type MetricSet = Record<MetricKey, number>
 
 export type SplitMembershipCounts = Record<RoundPhase, number>
 
-export type SplitOverlapCounts = {
-  trainValidation: number
-  trainTest: number
-  validationTest: number
-}
-
 export type BaselineEntry = {
   id: string
   modelName: string
@@ -42,12 +36,6 @@ export const releasedRowCounts: Record<Modality, SplitMembershipCounts> = {
   protein: { train: 256429, validation: 45208, test: 108232 },
 }
 
-export const splitOverlapAudit: Record<Modality, SplitOverlapCounts> = {
-  dna: { trainValidation: 0, trainTest: 0, validationTest: 0 },
-  rna: { trainValidation: 0, trainTest: 0, validationTest: 0 },
-  protein: { trainValidation: 0, trainTest: 0, validationTest: 0 },
-}
-
 export type RandomSplitProteinEntry = {
   modelName: string
   validation: MetricSet
@@ -71,6 +59,10 @@ export const paperAuthors = [
 export const paperAffiliations = ['Shanghai Jiao Tong University', 'Shanghai Innovation Institute']
 
 export const resourceLinks = [
+  {
+    label: 'Paper',
+    href: 'https://arxiv.org/abs/2606.02624v1',
+  },
   {
     label: 'Dataset',
     href: 'https://huggingface.co/datasets/JinGao/TadABench-1M',
