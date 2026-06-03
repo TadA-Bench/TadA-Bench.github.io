@@ -537,7 +537,7 @@ main {
 
 .replay-layout {
   display: grid;
-  grid-template-columns: minmax(138px, 0.34fr) minmax(0, 1fr);
+  grid-template-columns: 120px minmax(0, 1fr);
   gap: 10px;
   align-items: stretch;
 }
@@ -575,7 +575,7 @@ main {
 
 .replay-track small {
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: 0.6rem;
   font-weight: 800;
   line-height: 1.15;
 }
@@ -628,15 +628,15 @@ main {
 
 .discovery-contrast {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(220px, 240px) minmax(220px, 240px) minmax(0, 1fr);
   gap: 10px;
 }
 
 .rank-sketch {
   display: grid;
   min-height: 214px;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 8px;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 6px;
   align-content: start;
   border: 1px solid var(--line);
   border-radius: 6px;
@@ -647,6 +647,14 @@ main {
 .rank-sketch strong {
   color: var(--ink);
   font-size: 0.92rem;
+  line-height: 1.12;
+}
+
+.rank-sketch em {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 0.72rem;
+  line-height: 1.2;
 }
 
 .rank-axis {

@@ -203,7 +203,7 @@ function StorylineSection() {
           <div className="replay-panel" aria-label="Fixed-data replay evaluation">
             <div>
               <p className="eyebrow">How we evaluate</p>
-              <h3>Models rank later recorded variants from earlier evidence.</h3>
+              <h3>Models rank held-out later-round variants using labeled rounds 1-27.</h3>
             </div>
             <div className="replay-layout">
               <div className="replay-track" aria-hidden="true">
@@ -213,23 +213,24 @@ function StorylineSection() {
                 </span>
                 <i />
                 <span data-phase="validation">
-                  <b>Validate</b>
+                  <b>Tune</b>
                   <small>Round 28</small>
                 </span>
                 <i />
                 <span data-phase="test">
-                  <b>Test</b>
+                  <b>Rank</b>
                   <small>Rounds 29-31</small>
                 </span>
                 <i />
                 <span data-phase="rank">
-                  <b>Rank</b>
-                  <small>Top-k shortlist</small>
+                  <b>Score</b>
+                  <small>Top-k recovery</small>
                 </span>
               </div>
               <div className="discovery-contrast">
                 <div className="rank-sketch" data-mode="random">
-                  <strong>8:1:1 interpolation control</strong>
+                  <strong>8:1:1 interpolation</strong>
+                  <em>Mixed variants across rounds</em>
                   <span className="rank-axis">
                     <svg aria-hidden="true" focusable="false" viewBox="0 0 100 90" preserveAspectRatio="none">
                       <line x1="8" y1="78" x2="92" y2="14" />
@@ -237,7 +238,8 @@ function StorylineSection() {
                   </span>
                 </div>
                 <div className="rank-sketch" data-mode="future">
-                  <strong>Future-round replay</strong>
+                  <strong>Held-out later rounds</strong>
+                  <em>Rank variants from rounds 29-31</em>
                   <span className="rank-scatter">
                     <i />
                     <i />
@@ -250,8 +252,9 @@ function StorylineSection() {
                 </div>
                 <div className="rank-sketch" data-mode="coverage">
                   <strong>Coverage over local density</strong>
+                  <em>Top-k candidates should cover later-round regions</em>
                   <span className="coverage-map">
-                    <span className="coverage-local" data-label="Local cluster">
+                    <span className="coverage-local" data-label="Near neighbors">
                       <i />
                       <i />
                       <i />
@@ -263,7 +266,7 @@ function StorylineSection() {
                       <i />
                     </span>
                     <b aria-hidden="true" />
-                    <span className="coverage-broad" data-label="Round coverage">
+                    <span className="coverage-broad" data-label="Rounds 29-31">
                       <i data-phase="train" />
                       <i data-phase="validation" />
                       <i data-phase="test" />
