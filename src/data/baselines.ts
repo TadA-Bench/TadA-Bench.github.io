@@ -162,7 +162,7 @@ export const splitStages: SplitStage[] = [
   {
     label: 'Validation set',
     rounds: 'Round 28',
-    purpose: 'Used for learning-rate selection; not the final test claim.',
+    purpose: 'Held-out round used for model selection and hyperparameter choice before final test reporting.',
     dnaRnaCount: '148,014',
     proteinCount: '45,208',
   },
@@ -244,7 +244,7 @@ const nucleicAcidDomainCounts: SplitMembershipCounts[] = [
 ]
 
 export const domainCountSourceNote =
-  'Counts are parsed from the released Domain metadata in each fixed Hugging Face split.'
+  'Each cell counts rows in one fixed split whose released Domain metadata label is D0-D30.'
 
 export const domainCountRecords: DomainCountRecord[] = proteinDomainCounts.map((proteinCounts, index) => ({
   domain: index,

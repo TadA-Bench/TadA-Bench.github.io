@@ -164,15 +164,15 @@ function DataOverviewSection({
         <article className="domain-audit-panel">
           <div>
             <p className="eyebrow">Domain counts</p>
-            <h3>Domain by split matrix</h3>
+            <h3>Domain label counts by split</h3>
             <p>
-              {domainCountSourceNote} The D0-D30 labels are released Domain metadata labels, separate from the
-              train/validation/test split definition.
+              {domainCountSourceNote} A Domain label can appear in multiple fixed splits; that does not mean the same
+              sequence row belongs to more than one split.
             </p>
           </div>
           <div className="domain-matrix-wrap">
             <div className="domain-matrix" aria-label="Domain metadata counts by replay split">
-              <span className="domain-matrix-corner">Split</span>
+              <span className="domain-matrix-corner">Fixed split</span>
               {domainCountRecords.map((record) => (
                 <button
                   aria-pressed={activeDomain === record.domain}
@@ -195,7 +195,7 @@ function DataOverviewSection({
                     const intensity = Math.max(0.08, Math.min(0.92, Math.log1p(count) / Math.log1p(maxDomainSplitCount)))
                     return (
                       <button
-                        aria-label={`Domain D${record.domain}, ${datasetSplitLabels[phase]}, ${formatCount(count)} rows`}
+                        aria-label={`Domain label D${record.domain}, ${datasetSplitLabels[phase]}, ${formatCount(count)} rows`}
                         className="domain-cell"
                         data-active-domain={activeDomain === record.domain}
                         data-empty={count === 0}
@@ -203,7 +203,7 @@ function DataOverviewSection({
                         key={`${phase}-${record.domain}`}
                         onClick={() => setActiveDomain(record.domain)}
                         style={{ '--cell-alpha': intensity.toFixed(3) } as CSSProperties}
-                        title={`D${record.domain} · ${datasetSplitLabels[phase]} · ${formatCount(count)} rows`}
+                        title={`D${record.domain} · ${datasetSplitLabels[phase]} · ${formatCount(count)} rows with this Domain label`}
                         type="button"
                       >
                         <span>{count === 0 ? '0' : formatCompactCount(count)}</span>
@@ -229,13 +229,13 @@ function DataOverviewSection({
                     </div>
                   ))}
                   <div>
-                    <dt>Domain total</dt>
+                    <dt>Rows with label</dt>
                     <dd>{formatCount(splitCountTotal(activeDomainCounts))}</dd>
                   </div>
                 </dl>
               </>
             ) : (
-              <p>Click a domain column or cell to inspect its split counts.</p>
+              <p>Click a domain column or cell to inspect rows with that Domain label.</p>
             )}
           </div>
         </article>
@@ -278,10 +278,6 @@ function App() {
           <p className="eyebrow">ICML 2026</p>
           <h1 id="page-title">TadA-Bench</h1>
           <p className="hero-paper-title">{paperTitle}</p>
-          <p className="hero-copy__lead">
-            TadA-Bench is a million-variant wet-lab replay benchmark from 31 TadA directed-evolution rounds.
-            Models use earlier recorded variants and activity labels to rank variants from later rounds.
-          </p>
           <p className="author-line">{paperAuthors.join(', ')}</p>
           <p className="affiliation-line">{paperAffiliations.join(' · ')}</p>
           <div className="hero-actions" aria-label="Primary links">

@@ -57,13 +57,6 @@ main {
   line-height: 1.35;
 }
 
-.hero-copy__lead {
-  max-width: 780px;
-  margin: 18px 0 0;
-  color: var(--ink);
-  font-size: clamp(1rem, 1.5vw, 1.15rem);
-}
-
 .author-line,
 .affiliation-line {
   max-width: 820px;
@@ -190,6 +183,9 @@ main {
 }
 
 .stage-card {
+  display: grid;
+  grid-template-rows: auto auto minmax(48px, 1fr) auto;
+  align-items: start;
   padding: 17px;
 }
 
@@ -213,6 +209,8 @@ main {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1px;
+  width: 100%;
+  align-self: end;
   margin: 16px 0 0;
   border: 1px solid var(--line);
   background: var(--line);
