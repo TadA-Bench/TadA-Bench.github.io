@@ -26,6 +26,7 @@ export type PaperAuthor = {
   name: string
   affiliations: number[]
   corresponding?: boolean
+  href: string
 }
 
 export type PaperAffiliation = {
@@ -49,14 +50,14 @@ export const paperTitle =
   'TadA-Bench: A Million-Variant Benchmark for Future-Round Discovery Toward Agentic Protein Engineering'
 
 export const paperAuthors: PaperAuthor[] = [
-  { name: 'Jin Gao', affiliations: [1] },
-  { name: 'Juntu Zhao', affiliations: [1] },
-  { name: 'Zirui Zeng', affiliations: [1] },
-  { name: 'Jiaqi Shen', affiliations: [1] },
-  { name: 'Junhao Shi', affiliations: [1] },
-  { name: 'Dukun Zhao', affiliations: [1] },
-  { name: 'Yuming Lu', affiliations: [1], corresponding: true },
-  { name: 'Dequan Wang', affiliations: [1, 2], corresponding: true },
+  { name: 'Jin Gao', affiliations: [1], href: 'https://jingao.online/' },
+  { name: 'Juntu Zhao', affiliations: [1], href: 'https://juntuzhao.run/' },
+  { name: 'Zirui Zeng', affiliations: [1], href: 'https://github.com/zzrddq123' },
+  { name: 'Jiaqi Shen', affiliations: [1], href: 'https://scholar.google.com/citations?user=345MnaEAAAAJ&hl=en' },
+  { name: 'Junhao Shi', affiliations: [1], href: 'https://openreview.net/profile?id=~Junhao_Shi4' },
+  { name: 'Dukun Zhao', affiliations: [1], href: 'https://openreview.net/profile?id=~Dukun_Zhao1' },
+  { name: 'Yuming Lu', affiliations: [1], corresponding: true, href: 'https://www.agri.sjtu.edu.cn/En/Data/View/9939' },
+  { name: 'Dequan Wang', affiliations: [1, 2], corresponding: true, href: 'https://dequan.wang/' },
 ]
 
 export const paperAffiliations: PaperAffiliation[] = [

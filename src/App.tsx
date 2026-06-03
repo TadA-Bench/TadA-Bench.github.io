@@ -415,7 +415,9 @@ function App() {
           <p className="author-line" aria-label="Authors">
             {paperAuthors.map((author) => (
               <span className="author-entry" key={author.name}>
-                {author.name}
+                <a href={author.href} target="_blank" rel="noreferrer">
+                  {author.name}
+                </a>
                 <sup>{author.affiliations.join(',')}</sup>
                 {author.corresponding ? <sup>*</sup> : null}
               </span>

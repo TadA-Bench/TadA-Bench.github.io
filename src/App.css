@@ -81,6 +81,22 @@ main {
   content: ',';
 }
 
+.author-entry a {
+  color: inherit;
+  text-decoration-color: rgb(25 23 21 / 34%);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.author-entry a:hover {
+  text-decoration-color: currentColor;
+}
+
+.author-entry a:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
 .author-line sup,
 .affiliation-line sup,
 .correspondence-line sup {
@@ -169,7 +185,7 @@ main {
 }
 
 .instrument-label {
-  color: var(--ink);
+  color: var(--muted);
   font-size: 0.78rem;
   font-weight: 700;
   line-height: 1.35;
@@ -988,16 +1004,17 @@ main {
 
 .citation-section {
   display: grid;
-  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
-  gap: 28px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
   align-items: start;
 }
 
 .citation-section pre {
   margin: 0;
   padding: 18px;
-  overflow-x: auto;
-  white-space: pre;
+  overflow-x: visible;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .citation-section pre code {
@@ -1009,7 +1026,6 @@ main {
 }
 
 .citation-links {
-  grid-column: 2;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
