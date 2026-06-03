@@ -438,21 +438,21 @@ function App() {
 
         <aside className="hero-instrument" aria-label="Benchmark summary">
           <div className="instrument-topline">
-            <span>Fixed future-round replay</span>
-            <strong>1-27 / 28 / 29-31</strong>
+            <span className="instrument-label">Fixed future-round replay</span>
+            <span className="instrument-value">1-27 / 28 / 29-31</span>
           </div>
           <div className="fact-list">
             <div>
-              <span>DNA/RNA rows per view</span>
-              <strong>1,027,200</strong>
+              <span className="fact-label">DNA/RNA rows per view</span>
+              <span className="fact-value">1,027,200</span>
             </div>
             <div>
-              <span>Protein variants</span>
-              <strong>409,869</strong>
+              <span className="fact-label">Protein variants</span>
+              <span className="fact-value">409,869</span>
             </div>
             <div>
-              <span>Released views</span>
-              <strong>DNA, RNA, protein</strong>
+              <span className="fact-label">Released views</span>
+              <span className="fact-value">DNA, RNA, protein</span>
             </div>
           </div>
         </aside>

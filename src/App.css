@@ -163,17 +163,23 @@ main {
 
 .instrument-topline {
   display: grid;
-  gap: 4px;
+  gap: 6px;
   padding: 15px 16px;
   border-bottom: 1px solid var(--line);
-  color: var(--muted);
   font-family: var(--mono);
-  font-size: 0.82rem;
 }
 
-.instrument-topline strong {
+.instrument-label {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.instrument-value {
   color: var(--ink);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.35;
 }
 
 .fact-list {
@@ -182,7 +188,7 @@ main {
 
 .fact-list div {
   display: grid;
-  gap: 3px;
+  gap: 5px;
   padding: 15px 16px;
   border-bottom: 1px solid var(--line);
 }
@@ -191,17 +197,22 @@ main {
   border-bottom: 0;
 }
 
-.fact-list span {
+.fact-label {
   color: var(--muted);
   font-family: var(--mono);
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  line-height: 1.35;
   text-transform: uppercase;
 }
 
-.fact-list strong {
+.fact-value {
   color: var(--ink);
-  font-size: 1.05rem;
+  font-size: 0.94rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  line-height: 1.35;
 }
 
 .table-panel,
