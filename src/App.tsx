@@ -10,7 +10,6 @@ import {
   FileText,
   Filter,
   FlaskConical,
-  GitBranch,
   Search,
 } from 'lucide-react'
 import './App.css'
@@ -169,7 +168,7 @@ function StorylineSection() {
       <div className="section-heading section-heading--compact">
         <div>
           <p className="eyebrow">Benchmark idea</p>
-          <h2 id="story-heading">From a recorded TadA campaign to replayed future-round decisions.</h2>
+          <h2 id="story-heading">Recorded TadA campaign, replayed future-round decisions.</h2>
         </div>
       </div>
 
@@ -279,16 +278,7 @@ function StorylineSection() {
   )
 }
 
-function DataOverviewSection({
-  activeDataModality,
-  setActiveDataModality,
-}: {
-  activeDataModality: Modality
-  setActiveDataModality: (modality: Modality) => void
-}) {
-  const rowCounts = releasedRowCounts[activeDataModality]
-  const totalRows = splitCountTotal(rowCounts)
-
+function DataOverviewSection() {
   return (
     <section className="data-section" aria-labelledby="data-heading">
       <div className="section-heading section-heading--compact">
@@ -298,55 +288,52 @@ function DataOverviewSection({
         </div>
       </div>
 
-      <div className="data-controls" aria-label="Dataset view controls">
-        <div className="tabs" aria-label="Released view">
-          {modalities.map((modality) => (
-            <button
-              aria-pressed={activeDataModality === modality}
-              className="tab-button"
+      <div className="data-view-grid">
+        {modalities.map((modality) => {
+          const rowCounts = releasedRowCounts[modality]
+          const totalRows = splitCountTotal(rowCounts)
+          return (
+            <article
+              className="split-overview-panel data-view-card"
               key={modality}
-              onClick={() => setActiveDataModality(modality)}
-              style={{ '--tab-accent': modalityMeta[modality].accent } as CSSProperties}
-              type="button"
+              style={{ '--view-accent': modalityMeta[modality].accent } as CSSProperties}
             >
-              <ModalityIcon modality={modality} />
-              {modalityMeta[modality].label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="data-overview">
-        <article className="split-overview-panel">
-          <div className="split-overview-header">
-            <div>
-              <p className="eyebrow">{modalityMeta[activeDataModality].shortLabel} view</p>
-              <h3>{formatCount(totalRows)} released rows</h3>
-            </div>
-          </div>
-
-          <div className="split-row-list" aria-label={`${modalityMeta[activeDataModality].label} released split rows`}>
-            {splitPhases.map((phase) => {
-              const count = rowCounts[phase]
-              const share = count / totalRows
-              return (
-                <div className="split-row" data-phase={phase} key={phase}>
-                  <div className="split-row-label">
-                    <strong>{datasetSplitLabels[phase]}</strong>
-                    <span>{splitRoundLabels[phase]}</span>
-                  </div>
-                  <div className="split-row-meter" aria-hidden="true">
-                    <i style={{ transform: `scaleX(${share})` }} />
-                  </div>
-                  <div className="split-row-count">
-                    <strong>{formatCount(count)}</strong>
-                    <span>{Math.round(share * 100)}%</span>
+              <div className="split-overview-header">
+                <div className="view-title">
+                  <span className="view-icon">
+                    <ModalityIcon modality={modality} />
+                  </span>
+                  <div>
+                    <p className="eyebrow">{modalityMeta[modality].shortLabel} view</p>
+                    <h3>{formatCount(totalRows)} released rows</h3>
                   </div>
                 </div>
-              )
-            })}
-          </div>
-        </article>
+              </div>
+
+              <div className="split-row-list" aria-label={`${modalityMeta[modality].label} released split rows`}>
+                {splitPhases.map((phase) => {
+                  const count = rowCounts[phase]
+                  const share = count / totalRows
+                  return (
+                    <div className="split-row" data-phase={phase} key={phase}>
+                      <div className="split-row-label">
+                        <strong>{datasetSplitLabels[phase]}</strong>
+                        <span>{splitRoundLabels[phase]}</span>
+                      </div>
+                      <div className="split-row-meter" aria-hidden="true">
+                        <i style={{ transform: `scaleX(${share})` }} />
+                      </div>
+                      <div className="split-row-count">
+                        <strong>{formatCount(count)}</strong>
+                        <span>{Math.round(share * 100)}%</span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </article>
+          )
+        })}
       </div>
     </section>
   )
@@ -441,7 +428,7 @@ function App() {
 
       <StorylineSection />
 
-      <DataOverviewSection activeDataModality={activeModality} setActiveDataModality={setActiveModality} />
+      <DataOverviewSection />
 
       <section className="control-band" aria-label="Baseline sorting controls">
         <div className="tabs" aria-label="Sequence view">
@@ -608,12 +595,12 @@ function App() {
       <section className="diagnostic-section" aria-labelledby="diagnostic-heading">
         <div className="section-heading section-heading--single">
           <div>
-            <p className="eyebrow">Interpretation</p>
-            <h2 id="diagnostic-heading">Interpolation control, not the benchmark leaderboard.</h2>
+            <p className="eyebrow">Protein-view diagnostic</p>
+            <h2 id="diagnostic-heading">Interpolation control, not the future-round leaderboard.</h2>
           </div>
           <p>
-            The 8:1:1 interpolation-control split is reported as a label-learnability diagnostic. These protein-view
-            scores are separate from the fixed future-round leaderboard above.
+            The paper reports this 8:1:1 interpolation-control table on the protein view. It is a label-learnability
+            diagnostic, not a DNA/RNA/protein leaderboard.
           </p>
         </div>
 
@@ -643,30 +630,6 @@ function App() {
         </div>
       </section>
 
-      <section className="protocol-section" aria-labelledby="scope-heading">
-        <div>
-          <p className="eyebrow">Scope</p>
-          <h2 id="scope-heading">Fixed-data replay, not autonomous wet-lab execution.</h2>
-        </div>
-        <div className="protocol-grid">
-          <div className="protocol-item">
-            <GitBranch aria-hidden="true" />
-            <h3>Fixed replay scope</h3>
-            <p>Future-round replay is the benchmark task; the 8:1:1 interpolation control is a diagnostic analysis.</p>
-          </div>
-          <div className="protocol-item">
-            <Filter aria-hidden="true" />
-            <h3>Validation is not test</h3>
-            <p>Round 28 is for model selection. Test claims belong to rounds 29-31.</p>
-          </div>
-          <div className="protocol-item">
-            <FileText aria-hidden="true" />
-            <h3>Offline boundary</h3>
-            <p>The reported evaluation does not simulate proposal, planning, tool use, or autonomous wet-lab execution.</p>
-          </div>
-        </div>
-      </section>
-
       <section className="citation-section" aria-labelledby="citation-heading">
         <div>
           <p className="eyebrow">Citation</p>
@@ -687,7 +650,7 @@ function App() {
             <ExternalLink aria-hidden="true" />
           </a>
           <a href="https://github.com/shiyegao/TadABench-1M" target="_blank" rel="noreferrer">
-            <GitBranch aria-hidden="true" />
+            <Code2 aria-hidden="true" />
             Code repository
             <ExternalLink aria-hidden="true" />
           </a>

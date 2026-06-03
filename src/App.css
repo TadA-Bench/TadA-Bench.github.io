@@ -1,5 +1,9 @@
 main {
   min-height: 100vh;
+  width: min(100%, 1180px);
+  margin-inline: auto;
+  border-inline: 1px solid var(--line);
+  background: #fbfaf6;
 }
 
 .hero-section,
@@ -8,7 +12,6 @@ main {
 .control-band,
 .baseline-section,
 .diagnostic-section,
-.protocol-section,
 .citation-section {
   padding-inline: clamp(20px, 5vw, 76px);
 }
@@ -42,10 +45,11 @@ main {
   max-width: 980px;
   color: var(--ink);
   font-family: var(--display);
-  font-size: clamp(3.1rem, 7vw, 6.2rem);
+  font-size: clamp(3.1rem, 5.4vw, 5.15rem);
   font-weight: 720;
   line-height: 0.98;
   letter-spacing: 0;
+  white-space: nowrap;
 }
 
 .hero-paper-title {
@@ -200,7 +204,6 @@ main {
   font-size: 1.05rem;
 }
 
-.protocol-item,
 .table-panel,
 .citation-section pre {
   border: 1px solid var(--line);
@@ -208,7 +211,6 @@ main {
   background: #ffffff;
 }
 
-.protocol-item p,
 .section-heading > p {
   margin: 0;
   color: var(--muted);
@@ -218,15 +220,13 @@ main {
 .story-section,
 .baseline-section,
 .diagnostic-section,
-.protocol-section,
 .citation-section {
   padding-block: 52px;
   border-bottom: 1px solid var(--line);
   background: #fbfaf6;
 }
 
-.baseline-section,
-.protocol-section {
+.baseline-section {
   background: #ffffff;
 }
 
@@ -251,7 +251,6 @@ main {
 }
 
 .section-heading h2,
-.protocol-section h2,
 .citation-section h2 {
   margin: 0;
   color: var(--ink);
@@ -259,6 +258,10 @@ main {
   font-size: clamp(1.75rem, 3vw, 2.8rem);
   line-height: 1.08;
   letter-spacing: 0;
+}
+
+.story-section .section-heading--compact {
+  grid-template-columns: minmax(0, 1020px);
 }
 
 .story-board {
@@ -728,8 +731,8 @@ main {
 
 .story-takeaway {
   display: grid;
-  grid-template-columns: minmax(0, 0.95fr) minmax(340px, 0.72fr);
-  gap: clamp(18px, 3vw, 34px);
+  grid-template-columns: 1fr;
+  gap: 16px;
   align-items: start;
   padding: 22px;
   border-top: 1px solid var(--line);
@@ -845,16 +848,10 @@ main {
   background: #fbfaf6;
 }
 
-.data-controls {
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 16px;
-}
-
-.data-overview {
+.data-view-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
   align-items: stretch;
 }
 
@@ -882,8 +879,33 @@ main {
   margin: 0;
   color: var(--ink);
   font-family: var(--display);
-  font-size: clamp(1.35rem, 2.2vw, 2rem);
+  font-size: clamp(1.2rem, 1.7vw, 1.55rem);
   line-height: 1.1;
+}
+
+.view-title {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+}
+
+.view-icon {
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--view-accent) 70%, var(--line));
+  border-radius: 50%;
+  color: #ffffff;
+  background: var(--view-accent);
+}
+
+.view-icon svg {
+  width: 17px;
+  height: 17px;
 }
 
 .split-row-list {
@@ -897,6 +919,22 @@ main {
   align-items: center;
   padding: 16px 18px;
   border-bottom: 1px solid var(--line);
+}
+
+.data-view-card .split-row {
+  grid-template-columns: minmax(96px, 0.68fr) minmax(78px, 1fr) minmax(72px, 0.48fr);
+  gap: 10px;
+  padding: 13px 14px;
+}
+
+.data-view-card .split-row-label strong,
+.data-view-card .split-row-count strong {
+  font-size: 0.84rem;
+}
+
+.data-view-card .split-row-label span,
+.data-view-card .split-row-count span {
+  font-size: 0.72rem;
 }
 
 .split-row:last-child {
@@ -1231,39 +1269,11 @@ main {
   font-family: var(--body);
 }
 
-.protocol-section,
 .citation-section {
   display: grid;
   grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
   gap: 28px;
   align-items: start;
-}
-
-.protocol-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.protocol-item {
-  padding: 16px;
-}
-
-.protocol-item svg {
-  width: 20px;
-  height: 20px;
-  color: var(--muted);
-}
-
-.protocol-item h3 {
-  margin: 14px 0 8px;
-  color: var(--ink);
-  font-size: 1rem;
-}
-
-.protocol-item p {
-  overflow-wrap: anywhere;
-  font-size: 0.94rem;
 }
 
 .citation-section pre {
@@ -1309,12 +1319,16 @@ main {
   }
 }
 
+@media (max-width: 1180px) {
+  main {
+    border-inline: 0;
+  }
+}
+
 @media (max-width: 1120px) {
   .hero-section,
   .section-heading,
-  .data-overview,
   .story-board,
-  .protocol-section,
   .citation-section {
     grid-template-columns: 1fr;
   }
@@ -1335,10 +1349,6 @@ main {
     border-bottom: 0;
   }
 
-  .protocol-grid {
-    grid-template-columns: 1fr;
-  }
-
   .baseline-strips {
     grid-template-columns: 1fr;
   }
@@ -1348,19 +1358,25 @@ main {
   }
 }
 
+@media (max-width: 1040px) {
+  .data-view-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 760px) {
   .hero-section,
   .story-section,
   .data-section,
   .baseline-section,
   .diagnostic-section,
-  .protocol-section,
   .citation-section {
     padding-block: 38px;
   }
 
   .hero-copy h1 {
     font-size: clamp(1.85rem, 8.5vw, 2.45rem);
+    white-space: normal;
   }
 
   .control-band,
@@ -1389,8 +1405,12 @@ main {
     justify-content: center;
   }
 
-  .split-row {
+  .data-view-grid {
     grid-template-columns: 1fr;
+  }
+
+  .data-view-card .split-row {
+    grid-template-columns: minmax(92px, 0.75fr) minmax(80px, 1fr) minmax(70px, 0.48fr);
   }
 
   .story-pillar {
