@@ -211,6 +211,7 @@ export const baselineEntries: BaselineEntry[] = [
     id: 'rna-og-46m',
     modelName: 'OG-46M',
     modelFamily: 'OmniGenome',
+    modelHref: 'https://huggingface.co/anonymous8/OmniGenome-52M',
     modality: 'rna',
     protocol: 'Frozen encoder probe + MLP head',
     validation: { spearman: 0.0555, recallAt10: 0.0911, ndcgAt10: 0.2192 },

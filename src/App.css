@@ -141,7 +141,7 @@ main {
 .icon-button:focus-visible,
 .citation-links a:focus-visible,
 .sort-header:focus-visible,
-.filter-select:focus-within {
+.filter-menu summary:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 3px;
 }
@@ -169,8 +169,9 @@ main {
 }
 
 .instrument-label {
-  color: var(--muted);
+  color: var(--ink);
   font-size: 0.78rem;
+  font-weight: 700;
   line-height: 1.35;
 }
 
@@ -252,10 +253,6 @@ main {
   margin-bottom: 24px;
 }
 
-.section-heading--single {
-  grid-template-columns: minmax(0, 0.9fr) minmax(260px, 0.65fr);
-}
-
 .section-heading--compact {
   grid-template-columns: minmax(0, 780px);
 }
@@ -266,6 +263,20 @@ main {
 
 .baseline-heading-lines span {
   display: block;
+}
+
+.diagnostic-heading {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.diagnostic-heading h2 span {
+  display: block;
+}
+
+.diagnostic-heading > p {
+  max-width: 760px;
 }
 
 .section-heading h2,
@@ -1135,19 +1146,36 @@ main {
   justify-content: flex-end;
 }
 
-.filter-select {
+.filter-menu {
+  position: relative;
+  min-width: 0;
+}
+
+.filter-menu summary {
   display: inline-flex;
   min-height: 38px;
   align-items: center;
   gap: 7px;
   border: 1px solid var(--line);
   border-radius: 6px;
-  padding: 0 9px;
+  padding: 0 10px;
   background: #fbfaf6;
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
   white-space: nowrap;
 }
 
-.filter-select > span {
+.filter-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.filter-menu[open] summary {
+  border-color: var(--line-strong);
+  background: #ffffff;
+}
+
+.filter-menu summary > span {
   color: var(--muted);
   font-family: var(--mono);
   font-size: 0.68rem;
@@ -1155,21 +1183,58 @@ main {
   text-transform: uppercase;
 }
 
-.filter-select select {
-  min-height: 34px;
-  border: 0;
-  color: var(--ink);
-  background: transparent;
-  font: inherit;
+.filter-menu summary strong {
   font-size: 0.9rem;
   font-weight: 650;
-  outline: 0;
 }
 
-.filter-select svg {
+.filter-menu svg {
   width: 15px;
   height: 15px;
   color: var(--muted);
+}
+
+.filter-menu-options {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 6px);
+  right: 0;
+  display: grid;
+  min-width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 0 12px 24px rgba(25, 23, 21, 0.12);
+}
+
+.filter-menu-options button {
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 0 12px;
+  color: var(--ink);
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.filter-menu-options button:last-child {
+  border-bottom: 0;
+}
+
+.filter-menu-options button:hover,
+.filter-menu-options button[data-active='true'] {
+  background: #f1efe7;
+}
+
+.filter-menu-options button[data-active='true'] {
+  font-weight: 700;
 }
 
 .table-panel {
@@ -1312,6 +1377,10 @@ main {
   font-family: var(--body);
 }
 
+.random-table .method-cell {
+  font-family: var(--body);
+}
+
 .citation-section {
   display: grid;
   grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
@@ -1443,12 +1512,22 @@ main {
     justify-content: stretch;
   }
 
-  .filter-select {
+  .filter-menu {
     flex: 1 1 150px;
   }
 
-  .filter-select select {
+  .filter-menu summary {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .filter-menu summary strong {
     min-width: 0;
+  }
+
+  .filter-menu-options {
+    left: 0;
+    right: auto;
   }
 
   .data-view-grid {
@@ -1462,6 +1541,11 @@ main {
 
   .section-heading .baseline-heading-lines {
     font-size: clamp(1.18rem, 5.2vw, 1.34rem);
+    line-height: 1.08;
+  }
+
+  .diagnostic-heading h2 {
+    font-size: clamp(1.12rem, 5vw, 1.28rem);
     line-height: 1.08;
   }
 

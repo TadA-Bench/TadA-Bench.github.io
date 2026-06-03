@@ -5,6 +5,7 @@ import {
   ArrowUp,
   BarChart3,
   BookOpen,
+  ChevronDown,
   Code2,
   Database,
   Dna,
@@ -38,17 +39,18 @@ const metricKeys = Object.keys(metricLabels) as MetricKey[]
 const modalities: Modality[] = ['dna', 'rna', 'protein']
 const splitKeys = Object.keys(splitLabels) as SplitKey[]
 const splitPhases: RoundPhase[] = ['train', 'validation', 'test']
-type SortKey = 'rank' | 'modelName' | MetricKey
+type SortKey = 'modelName' | MetricKey
 type SortDirection = 'asc' | 'desc'
 
-const baselineOrder = new Map(baselineEntries.map((entry, index) => [entry.id, index]))
 const tableColumns: { key: SortKey; label: string }[] = [
-  { key: 'rank', label: 'Rank' },
   { key: 'modelName', label: 'Model' },
   { key: 'spearman', label: metricLabels.spearman },
   { key: 'recallAt10', label: metricLabels.recallAt10 },
   { key: 'ndcgAt10', label: metricLabels.ndcgAt10 },
 ]
+const modelMetadataByName = new Map(
+  baselineEntries.map((entry) => [entry.modelName, { modelFamily: entry.modelFamily, modelHref: entry.modelHref }]),
+)
 
 function formatScore(value: number) {
   return value.toFixed(4)
@@ -63,9 +65,13 @@ function splitCountTotal(counts: SplitMembershipCounts) {
 }
 
 function getSortValue(entry: (typeof baselineEntries)[number], key: SortKey, split: SplitKey) {
-  if (key === 'rank') return baselineOrder.get(entry.id) ?? 0
   if (key === 'modelName') return entry.modelName
   return entry[split][key]
+}
+
+function getDiagnosticSortValue(entry: (typeof randomSplitProteinControls)[number], key: SortKey) {
+  if (key === 'modelName') return entry.modelName
+  return entry.test[key]
 }
 
 function compareSortValues(a: string | number, b: string | number, direction: SortDirection) {
@@ -83,6 +89,47 @@ function ResourceIcon({ label }: { label: string }) {
   if (label === 'Paper') return <FileText aria-hidden="true" />
   if (label === 'Dataset') return <Database aria-hidden="true" />
   return <Code2 aria-hidden="true" />
+}
+
+function FilterMenu<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string
+  options: { label: string; value: T }[]
+  value: T
+  onChange: (value: T) => void
+}) {
+  const activeOption = options.find((option) => option.value === value) ?? options[0]
+
+  return (
+    <details className="filter-menu">
+      <summary>
+        <Filter aria-hidden="true" />
+        <span>{label}</span>
+        <strong>{activeOption.label}</strong>
+        <ChevronDown aria-hidden="true" />
+      </summary>
+      <div className="filter-menu-options">
+        {options.map((option) => (
+          <button
+            data-active={option.value === value}
+            key={option.value}
+            onClick={(event) => {
+              onChange(option.value)
+              const details = event.currentTarget.closest('details') as HTMLDetailsElement | null
+              if (details) details.open = false
+            }}
+            type="button"
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+    </details>
+  )
 }
 
 const datasetSplitLabels: Record<RoundPhase, string> = {
@@ -219,7 +266,6 @@ function StorylineSection() {
           </div>
 
           <div className="seq2graph-strip" aria-label="Seq2Graph construction steps">
-            <p className="eyebrow">How we build it: Seq2Graph</p>
             <div className="seq2graph-steps">
               {seq2GraphSteps.map((step, index) => (
                 <span key={step}>
@@ -232,7 +278,6 @@ function StorylineSection() {
 
           <div className="replay-panel" aria-label="Fixed-data replay evaluation">
             <div>
-              <p className="eyebrow">How we evaluate</p>
               <h3>Models rank held-out later-round variants using labeled rounds 1-27.</h3>
             </div>
             <div className="replay-layout">
@@ -383,6 +428,10 @@ function App() {
     key: 'spearman',
     direction: 'desc',
   })
+  const [diagnosticSortConfig, setDiagnosticSortConfig] = useState<{ key: SortKey; direction: SortDirection }>({
+    key: 'spearman',
+    direction: 'desc',
+  })
 
   const visibleEntries = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
@@ -408,7 +457,28 @@ function App() {
       if (current.key === key) {
         return { key, direction: current.direction === 'asc' ? 'desc' : 'asc' }
       }
-      return { key, direction: key === 'modelName' || key === 'rank' ? 'asc' : 'desc' }
+      return { key, direction: key === 'modelName' ? 'asc' : 'desc' }
+    })
+  }
+
+  const diagnosticRows = useMemo(() => {
+    return [...randomSplitProteinControls].sort((a, b) => {
+      const primary = compareSortValues(
+        getDiagnosticSortValue(a, diagnosticSortConfig.key),
+        getDiagnosticSortValue(b, diagnosticSortConfig.key),
+        diagnosticSortConfig.direction,
+      )
+      if (primary !== 0) return primary
+      return a.modelName.localeCompare(b.modelName)
+    })
+  }, [diagnosticSortConfig])
+
+  const handleDiagnosticSort = (key: SortKey) => {
+    setDiagnosticSortConfig((current) => {
+      if (current.key === key) {
+        return { key, direction: current.direction === 'asc' ? 'desc' : 'asc' }
+      }
+      return { key, direction: key === 'modelName' ? 'asc' : 'desc' }
     })
   }
 
@@ -510,36 +580,24 @@ function App() {
               />
             </label>
             <div className="table-filter-group" aria-label="Baseline table filters">
-              <label className="filter-select">
-                <Filter aria-hidden="true" />
-                <span>View</span>
-                <select
-                  aria-label="Filter by sequence view"
-                  onChange={(event) => setActiveModality(event.target.value as Modality)}
-                  value={activeModality}
-                >
-                  {modalities.map((modality) => (
-                    <option key={modality} value={modality}>
-                      {modalityMeta[modality].label} view
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="filter-select">
-                <Filter aria-hidden="true" />
-                <span>Split</span>
-                <select
-                  aria-label="Filter by evaluation split"
-                  onChange={(event) => setActiveSplit(event.target.value as SplitKey)}
-                  value={activeSplit}
-                >
-                  {splitKeys.map((split) => (
-                    <option key={split} value={split}>
-                      {splitLabels[split]} split
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <FilterMenu
+                label="View"
+                onChange={setActiveModality}
+                options={modalities.map((modality) => ({
+                  label: `${modalityMeta[modality].label} view`,
+                  value: modality,
+                }))}
+                value={activeModality}
+              />
+              <FilterMenu
+                label="Split"
+                onChange={setActiveSplit}
+                options={splitKeys.map((split) => ({
+                  label: `${splitLabels[split]} split`,
+                  value: split,
+                }))}
+                value={activeSplit}
+              />
             </div>
           </div>
 
@@ -547,6 +605,7 @@ function App() {
             <table className="baseline-table" aria-label={`${modalityMeta[activeModality].label} ${splitLabels[activeSplit]} baseline metrics`}>
               <thead>
                 <tr>
+                  <th scope="col">Rank</th>
                   {tableColumns.map((column) => {
                     const isActiveSort = sortConfig.key === column.key
                     return (
@@ -615,10 +674,13 @@ function App() {
       </section>
 
       <section className="diagnostic-section" aria-labelledby="diagnostic-heading">
-        <div className="section-heading section-heading--single">
+        <div className="section-heading diagnostic-heading">
           <div>
             <p className="eyebrow">Protein-view diagnostic</p>
-            <h2 id="diagnostic-heading">Interpolation control, not the future-round leaderboard.</h2>
+            <h2 id="diagnostic-heading">
+              <span>Interpolation control, not the</span>
+              <span>future-round leaderboard.</span>
+            </h2>
           </div>
           <p>
             The paper reports this 8:1:1 interpolation-control table on the protein view. It is a label-learnability
@@ -630,23 +692,68 @@ function App() {
           <table className="random-table" aria-label="Protein interpolation-control test metrics">
             <thead>
               <tr>
-                <th>Model</th>
-                <th>Spearman</th>
-                <th>Recall@10%</th>
-                <th>nDCG@10%</th>
+                {tableColumns.map((column) => {
+                  const isActiveSort = diagnosticSortConfig.key === column.key
+                  return (
+                    <th
+                      aria-sort={
+                        isActiveSort
+                          ? diagnosticSortConfig.direction === 'asc'
+                            ? 'ascending'
+                            : 'descending'
+                          : 'none'
+                      }
+                      key={column.key}
+                      scope="col"
+                    >
+                      <button
+                        className="sort-header"
+                        data-active={isActiveSort}
+                        onClick={() => handleDiagnosticSort(column.key)}
+                        type="button"
+                      >
+                        {column.label}
+                        {isActiveSort ? (
+                          diagnosticSortConfig.direction === 'asc' ? (
+                            <ArrowUp aria-hidden="true" />
+                          ) : (
+                            <ArrowDown aria-hidden="true" />
+                          )
+                        ) : (
+                          <ArrowDownUp aria-hidden="true" />
+                        )}
+                      </button>
+                    </th>
+                  )
+                })}
               </tr>
             </thead>
             <tbody>
-              {randomSplitProteinControls.map((row) => (
-                <tr key={row.modelName}>
-                  <td>
-                    <strong>{row.modelName}</strong>
-                  </td>
-                  <td>{formatScore(row.test.spearman)}</td>
-                  <td>{formatScore(row.test.recallAt10)}</td>
-                  <td>{formatScore(row.test.ndcgAt10)}</td>
-                </tr>
-              ))}
+              {diagnosticRows.map((row) => {
+                const metadata = modelMetadataByName.get(row.modelName)
+                return (
+                  <tr key={row.modelName}>
+                    <td>
+                      <span className="method-cell">
+                        {metadata?.modelHref ? (
+                          <a className="model-link" href={metadata.modelHref} target="_blank" rel="noreferrer">
+                            {row.modelName}
+                            <ExternalLink aria-hidden="true" />
+                          </a>
+                        ) : (
+                          <strong>{row.modelName}</strong>
+                        )}
+                        {metadata?.modelFamily ? <small>{metadata.modelFamily}</small> : null}
+                      </span>
+                    </td>
+                    {metricKeys.map((metric) => (
+                      <td className="score-cell" key={metric}>
+                        {formatScore(row.test[metric])}
+                      </td>
+                    ))}
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
