@@ -205,44 +205,73 @@ function StorylineSection() {
               <p className="eyebrow">How we evaluate</p>
               <h3>Models rank later recorded variants from earlier evidence.</h3>
             </div>
-            <div className="replay-track" aria-hidden="true">
-              <span data-phase="train">Train 1-27</span>
-              <i />
-              <span data-phase="validation">Validate 28</span>
-              <i />
-              <span data-phase="test">Test 29-31</span>
-              <i />
-              <span data-phase="rank">Top-k shortlist</span>
-            </div>
-            <div className="discovery-contrast">
-              <div className="rank-sketch" data-mode="random">
-                <strong>8:1:1 interpolation control</strong>
-                <span className="rank-axis">
-                  <svg aria-hidden="true" focusable="false" viewBox="0 0 100 70" preserveAspectRatio="none">
-                    <line x1="8" y1="62" x2="92" y2="10" />
-                  </svg>
+            <div className="replay-layout">
+              <div className="replay-track" aria-hidden="true">
+                <span data-phase="train">
+                  <b>Train</b>
+                  <small>Rounds 1-27</small>
+                </span>
+                <i />
+                <span data-phase="validation">
+                  <b>Validate</b>
+                  <small>Round 28</small>
+                </span>
+                <i />
+                <span data-phase="test">
+                  <b>Test</b>
+                  <small>Rounds 29-31</small>
+                </span>
+                <i />
+                <span data-phase="rank">
+                  <b>Rank</b>
+                  <small>Top-k shortlist</small>
                 </span>
               </div>
-              <div className="rank-sketch" data-mode="future">
-                <strong>Future-round replay</strong>
-                <span className="rank-scatter">
-                  <i />
-                  <i />
-                  <i />
-                  <i />
-                  <i />
-                  <i />
-                  <i />
-                </span>
-              </div>
-              <div className="rank-sketch" data-mode="coverage">
-                <strong>Coverage over local density</strong>
-                <span className="coverage-node">
-                  <i />
-                  <i />
-                  <i />
-                  <i />
-                </span>
+              <div className="discovery-contrast">
+                <div className="rank-sketch" data-mode="random">
+                  <strong>8:1:1 interpolation control</strong>
+                  <span className="rank-axis">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 90" preserveAspectRatio="none">
+                      <line x1="8" y1="78" x2="92" y2="14" />
+                    </svg>
+                  </span>
+                </div>
+                <div className="rank-sketch" data-mode="future">
+                  <strong>Future-round replay</strong>
+                  <span className="rank-scatter">
+                    <i />
+                    <i />
+                    <i />
+                    <i />
+                    <i />
+                    <i />
+                    <i />
+                  </span>
+                </div>
+                <div className="rank-sketch" data-mode="coverage">
+                  <strong>Coverage over local density</strong>
+                  <span className="coverage-map">
+                    <span className="coverage-local" data-label="Local cluster">
+                      <i />
+                      <i />
+                      <i />
+                      <i />
+                      <i />
+                      <i />
+                      <i />
+                      <i />
+                      <i />
+                    </span>
+                    <b aria-hidden="true" />
+                    <span className="coverage-broad" data-label="Round coverage">
+                      <i data-phase="train" />
+                      <i data-phase="validation" />
+                      <i data-phase="test" />
+                      <i data-phase="train" />
+                      <i data-phase="test" />
+                    </span>
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -259,16 +288,16 @@ function StorylineSection() {
             </div>
             <dl>
               <div>
-                <dt>Input evidence</dt>
-                <dd>Earlier rounds</dd>
+                <dt>Model sees</dt>
+                <dd>Rounds 1-27 variants + labels</dd>
               </div>
               <div>
-                <dt>Decision proxy</dt>
+                <dt>Model outputs</dt>
                 <dd>Candidate ranking</dd>
               </div>
               <div>
-                <dt>Offline boundary</dt>
-                <dd>No new experiments</dd>
+                <dt>Evaluated on</dt>
+                <dd>Rounds 29-31 variants</dd>
               </div>
             </dl>
           </div>

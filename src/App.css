@@ -535,26 +535,49 @@ main {
   gap: 4px;
 }
 
+.replay-layout {
+  display: grid;
+  grid-template-columns: minmax(138px, 0.34fr) minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+
 .replay-track {
   display: grid;
-  grid-template-columns: minmax(120px, 1fr) 24px minmax(110px, 0.8fr) 24px minmax(110px, 0.8fr) 24px minmax(120px, 0.9fr);
+  grid-template-columns: 1fr;
+  grid-template-rows: minmax(52px, 1fr) 18px minmax(52px, 1fr) 18px minmax(52px, 1fr) 18px minmax(52px, 1fr);
   gap: 8px;
   align-items: center;
 }
 
 .replay-track span {
-  display: flex;
-  min-height: 42px;
-  align-items: center;
+  display: grid;
+  min-height: 52px;
+  align-content: center;
   justify-content: center;
+  gap: 2px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 6px;
+  padding: 8px;
   background: #fbfaf6;
   color: var(--ink);
   font-family: var(--mono);
+  text-align: center;
+}
+
+.replay-track b {
+  color: currentColor;
   font-size: 0.78rem;
   font-weight: 850;
-  text-align: center;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.replay-track small {
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 800;
+  line-height: 1.15;
 }
 
 .replay-track span[data-phase='train'] {
@@ -578,23 +601,29 @@ main {
   color: #ffffff;
 }
 
+.replay-track span[data-phase='rank'] small {
+  color: rgb(255 255 255 / 74%);
+}
+
 .replay-track i {
   position: relative;
   display: block;
-  height: 2px;
+  width: 2px;
+  height: 18px;
+  justify-self: center;
   background: #191715;
 }
 
 .replay-track i::after {
   position: absolute;
-  top: -4px;
-  right: 0;
+  right: -4px;
+  bottom: 0;
   width: 9px;
   height: 9px;
   border-top: 2px solid #191715;
   border-right: 2px solid #191715;
   content: '';
-  transform: rotate(45deg);
+  transform: rotate(135deg);
 }
 
 .discovery-contrast {
@@ -605,7 +634,8 @@ main {
 
 .rank-sketch {
   display: grid;
-  min-height: 128px;
+  min-height: 214px;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 8px;
   align-content: start;
   border: 1px solid var(--line);
@@ -622,7 +652,7 @@ main {
 .rank-axis {
   position: relative;
   display: block;
-  height: 74px;
+  min-height: 148px;
   border-left: 1px solid #8f887c;
   border-bottom: 1px solid #8f887c;
 }
@@ -644,7 +674,7 @@ main {
 .rank-scatter {
   position: relative;
   display: block;
-  height: 74px;
+  min-height: 148px;
   border-left: 1px solid #8f887c;
   border-bottom: 1px solid #8f887c;
 }
@@ -692,41 +722,150 @@ main {
   top: 68%;
 }
 
-.coverage-node {
+.coverage-map {
+  display: grid;
+  min-height: 148px;
+  grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr);
+  gap: 8px;
+  align-items: stretch;
+}
+
+.coverage-local,
+.coverage-broad {
   position: relative;
   display: block;
-  height: 74px;
-}
-
-.coverage-node::before,
-.coverage-node::after {
-  position: absolute;
-  top: 18px;
-  width: 48px;
-  height: 48px;
+  min-height: 148px;
   border: 1px solid var(--line);
-  border-radius: 50%;
-  content: '';
+  border-radius: 6px;
+  background: #ffffff;
 }
 
-.coverage-node::before {
-  left: 14px;
-  background: radial-gradient(circle, #b8b2a5 2px, transparent 3px) 0 0 / 13px 13px;
-}
-
-.coverage-node::after {
-  right: 14px;
-  border-color: #5d3ea8;
-  background: radial-gradient(circle, #5d3ea8 3px, transparent 4px) 3px 3px / 21px 21px;
-}
-
-.coverage-node i {
+.coverage-local::before,
+.coverage-broad::before {
   position: absolute;
-  top: 40px;
-  left: calc(50% - 7px);
-  width: 14px;
+  left: 9px;
+  top: 8px;
+  color: var(--muted);
+  content: attr(data-label);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.coverage-local i,
+.coverage-broad i {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.coverage-local i {
+  background: #b8b2a5;
+}
+
+.coverage-local i:nth-child(1) {
+  left: 43%;
+  top: 48%;
+}
+
+.coverage-local i:nth-child(2) {
+  left: 50%;
+  top: 42%;
+}
+
+.coverage-local i:nth-child(3) {
+  left: 53%;
+  top: 54%;
+}
+
+.coverage-local i:nth-child(4) {
+  left: 39%;
+  top: 58%;
+}
+
+.coverage-local i:nth-child(5) {
+  left: 47%;
+  top: 61%;
+}
+
+.coverage-local i:nth-child(6) {
+  left: 58%;
+  top: 47%;
+}
+
+.coverage-local i:nth-child(7) {
+  left: 35%;
+  top: 43%;
+}
+
+.coverage-local i:nth-child(8) {
+  left: 45%;
+  top: 36%;
+}
+
+.coverage-local i:nth-child(9) {
+  left: 57%;
+  top: 60%;
+}
+
+.coverage-map > b {
+  position: relative;
+  display: block;
+  width: 100%;
   height: 2px;
+  align-self: center;
   background: #191715;
+}
+
+.coverage-map > b::after {
+  position: absolute;
+  top: -4px;
+  right: -1px;
+  width: 9px;
+  height: 9px;
+  border-top: 2px solid #191715;
+  border-right: 2px solid #191715;
+  content: '';
+  transform: rotate(45deg);
+}
+
+.coverage-broad i[data-phase='train'] {
+  background: #1b7f72;
+}
+
+.coverage-broad i[data-phase='validation'] {
+  background: #c49324;
+}
+
+.coverage-broad i[data-phase='test'] {
+  background: #bf3f2f;
+}
+
+.coverage-broad i:nth-child(1) {
+  left: 18%;
+  top: 65%;
+}
+
+.coverage-broad i:nth-child(2) {
+  left: 36%;
+  top: 40%;
+}
+
+.coverage-broad i:nth-child(3) {
+  left: 58%;
+  top: 70%;
+}
+
+.coverage-broad i:nth-child(4) {
+  left: 68%;
+  top: 34%;
+}
+
+.coverage-broad i:nth-child(5) {
+  left: 80%;
+  top: 55%;
 }
 
 .story-takeaway {
@@ -846,6 +985,14 @@ main {
 
 .data-section {
   background: #fbfaf6;
+}
+
+.data-section .section-heading--compact {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.data-section .section-heading h2 {
+  white-space: nowrap;
 }
 
 .data-view-grid {
@@ -1334,8 +1481,7 @@ main {
   }
 
   .story-pillars,
-  .seq2graph-steps,
-  .discovery-contrast {
+  .seq2graph-steps {
     grid-template-columns: 1fr;
   }
 
@@ -1361,6 +1507,22 @@ main {
 @media (max-width: 1040px) {
   .data-view-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .replay-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .discovery-contrast {
+    grid-template-columns: repeat(3, minmax(220px, 1fr));
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .rank-sketch {
+    min-width: 220px;
   }
 }
 
@@ -1407,6 +1569,11 @@ main {
 
   .data-view-grid {
     grid-template-columns: 1fr;
+  }
+
+  .data-section .section-heading h2 {
+    font-size: 0.98rem;
+    white-space: nowrap;
   }
 
   .data-view-card .split-row {
