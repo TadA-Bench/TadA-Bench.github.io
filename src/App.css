@@ -100,9 +100,7 @@ main {
 .icon-button:focus-visible,
 .citation-links a:focus-visible,
 .tab-button:focus-visible,
-.metric-button:focus-visible,
-.domain-column-header:focus-visible,
-.domain-cell:focus-visible {
+.metric-button:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 3px;
 }
@@ -264,6 +262,10 @@ main {
   grid-template-columns: minmax(0, 0.9fr) minmax(260px, 0.65fr);
 }
 
+.section-heading--compact {
+  grid-template-columns: minmax(0, 780px);
+}
+
 .section-heading h2,
 .protocol-section h2,
 .citation-section h2 {
@@ -351,7 +353,7 @@ main {
 }
 
 .split-overview-panel,
-.domain-audit-panel {
+.split-audit-panel {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fffffb;
@@ -372,7 +374,7 @@ main {
 }
 
 .split-overview-header h3,
-.domain-audit-panel h3 {
+.split-audit-panel h3 {
   margin: 0;
   color: var(--ink);
   font-family: var(--display);
@@ -408,7 +410,7 @@ main {
 
 .split-row-label span,
 .split-row-count span,
-.domain-audit-panel p {
+.split-audit-panel p {
   color: var(--muted);
 }
 
@@ -456,190 +458,82 @@ main {
   font-weight: 800;
 }
 
-.domain-audit-panel {
+.split-audit-panel {
   display: grid;
-  gap: 14px;
+  gap: 16px;
   padding: 18px;
 }
 
-.domain-matrix-wrap {
+.split-audit-panel code {
+  border-color: #d6cfbf;
+  background: #f7f4eb;
+}
+
+.split-audit-table-wrap {
   max-width: 100%;
   overflow-x: auto;
   padding-bottom: 4px;
 }
 
-.domain-matrix {
+.split-audit-grid {
   display: grid;
-  grid-template-columns: 118px repeat(31, minmax(34px, 1fr));
-  gap: 3px;
-  min-width: 1218px;
-  padding: 12px;
+  min-width: 560px;
   border: 1px solid var(--line);
   border-radius: 6px;
   background: #ffffff;
-}
-
-.domain-matrix-corner,
-.domain-column-header,
-.domain-row-label,
-.domain-cell {
-  min-height: 34px;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  font-family: var(--mono);
-}
-
-.domain-matrix-corner,
-.domain-column-header {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--muted);
-  background: #fbfaf6;
-  font-size: 0.68rem;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
-.domain-column-header,
-.domain-cell {
-  cursor: pointer;
-}
-
-.domain-column-header[aria-pressed='true'] {
-  border-color: var(--ink);
-  color: var(--ink);
-  background: #f1efe7;
-}
-
-.domain-matrix-row {
-  display: grid;
-  grid-column: 1 / -1;
-  grid-template-columns: subgrid;
-  gap: 3px;
-}
-
-.domain-row-label {
-  display: grid;
-  align-content: center;
-  gap: 2px;
-  padding: 0 9px;
-  background: #fbfaf6;
-}
-
-.domain-row-label strong {
-  color: var(--ink);
-  font-size: 0.76rem;
-}
-
-.domain-row-label small {
-  color: var(--muted);
-  font-size: 0.64rem;
-  font-weight: 800;
-}
-
-.domain-cell {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  color: var(--ink);
-  background: #f7f4eb;
-  font-size: 0.62rem;
-  font-weight: 850;
   overflow: hidden;
 }
 
-.domain-cell::before {
-  position: absolute;
-  inset: 0;
-  background: #1b7f72;
-  content: '';
-  opacity: var(--cell-alpha);
-}
-
-.domain-cell[data-phase='validation']::before {
-  background: #c49324;
-}
-
-.domain-cell[data-phase='test']::before {
-  background: #bf3f2f;
-}
-
-.domain-cell[data-empty='true'] {
-  color: #b8b2a5;
-  background: #fbfaf6;
-}
-
-.domain-cell[data-empty='true']::before {
-  opacity: 0;
-}
-
-.domain-cell[data-active-domain='true'] {
-  border-color: var(--ink);
-  box-shadow: inset 0 0 0 1px var(--ink);
-}
-
-.domain-cell span {
-  position: relative;
-  z-index: 1;
-}
-
-.domain-detail {
-  display: flex;
-  min-height: 70px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 12px;
-  background: #ffffff;
-}
-
-.domain-detail h4 {
-  margin: 0;
-  color: var(--ink);
-  font-family: var(--display);
-  font-size: 1.55rem;
-  line-height: 1;
-}
-
-.domain-detail dl {
+.split-audit-head,
+.split-audit-row {
   display: grid;
-  grid-template-columns: repeat(4, minmax(92px, auto));
-  gap: 1px;
-  margin: 0;
-  border: 1px solid var(--line);
-  background: var(--line);
+  grid-template-columns: minmax(120px, 1.1fr) repeat(3, minmax(105px, 0.9fr));
 }
 
-.domain-detail dl div {
-  padding: 8px 10px;
-  background: #fbfaf6;
-}
-
-.domain-detail dt {
-  margin: 0 0 4px;
+.split-audit-head {
   color: var(--muted);
+  background: #fbfaf6;
   font-family: var(--mono);
-  font-size: 0.62rem;
-  font-weight: 850;
+  font-size: 0.7rem;
+  font-weight: 800;
   text-transform: uppercase;
 }
 
-.domain-detail dd {
-  margin: 0;
+.split-audit-head span,
+.split-audit-row strong,
+.split-audit-row span {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  padding: 0 12px;
+}
+
+.split-audit-head span:last-child,
+.split-audit-row span:last-child {
+  border-right: 0;
+}
+
+.split-audit-row:last-child strong,
+.split-audit-row:last-child span {
+  border-bottom: 0;
+}
+
+.split-audit-row strong {
+  color: var(--ink);
+  font-weight: 760;
+}
+
+.split-audit-row span {
+  justify-content: flex-end;
   color: var(--ink);
   font-family: var(--mono);
-  font-size: 0.78rem;
   font-weight: 850;
 }
 
-.domain-detail[data-empty='true'] {
-  justify-content: flex-start;
-  color: var(--muted);
+.split-audit-row[data-active='true'] {
+  background: #f7f4eb;
 }
 
 .baseline-strips {
@@ -1034,14 +928,28 @@ main {
     justify-content: center;
   }
 
-  .split-row,
-  .domain-detail dl {
+  .split-row {
     grid-template-columns: 1fr;
   }
 
-  .domain-detail {
-    align-items: stretch;
-    flex-direction: column;
+  .split-audit-grid {
+    min-width: 0;
+  }
+
+  .split-audit-head,
+  .split-audit-row {
+    grid-template-columns: minmax(66px, 0.95fr) repeat(3, minmax(58px, 0.75fr));
+  }
+
+  .split-audit-head {
+    font-size: 0.56rem;
+  }
+
+  .split-audit-head span,
+  .split-audit-row strong,
+  .split-audit-row span {
+    min-height: 40px;
+    padding: 0 7px;
   }
 
   .random-row {

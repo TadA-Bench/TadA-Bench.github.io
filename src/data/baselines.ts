@@ -10,6 +10,12 @@ export type MetricSet = Record<MetricKey, number>
 
 export type SplitMembershipCounts = Record<RoundPhase, number>
 
+export type SplitOverlapCounts = {
+  trainValidation: number
+  trainTest: number
+  validationTest: number
+}
+
 export type BaselineEntry = {
   id: string
   modelName: string
@@ -30,16 +36,16 @@ export type SplitStage = {
   proteinCount: string
 }
 
-export type DomainCountRecord = {
-  domain: number
-  nodeId: number
-  counts: Record<Modality, SplitMembershipCounts>
-}
-
 export const releasedRowCounts: Record<Modality, SplitMembershipCounts> = {
   dna: { train: 729302, validation: 148014, test: 149884 },
   rna: { train: 729302, validation: 148014, test: 149884 },
   protein: { train: 256429, validation: 45208, test: 108232 },
+}
+
+export const splitOverlapAudit: Record<Modality, SplitOverlapCounts> = {
+  dna: { trainValidation: 0, trainTest: 0, validationTest: 0 },
+  rna: { trainValidation: 0, trainTest: 0, validationTest: 0 },
+  protein: { trainValidation: 0, trainTest: 0, validationTest: 0 },
 }
 
 export type RandomSplitProteinEntry = {
@@ -174,87 +180,6 @@ export const splitStages: SplitStage[] = [
     proteinCount: '108,232',
   },
 ]
-
-const proteinDomainCounts: SplitMembershipCounts[] = [
-  { train: 3473, validation: 0, test: 0 },
-  { train: 15974, validation: 0, test: 0 },
-  { train: 8888, validation: 0, test: 0 },
-  { train: 5095, validation: 0, test: 0 },
-  { train: 1235, validation: 0, test: 0 },
-  { train: 2416, validation: 0, test: 0 },
-  { train: 3952, validation: 0, test: 0 },
-  { train: 336, validation: 0, test: 0 },
-  { train: 28342, validation: 0, test: 0 },
-  { train: 572, validation: 0, test: 0 },
-  { train: 1439, validation: 0, test: 0 },
-  { train: 1493, validation: 0, test: 0 },
-  { train: 489, validation: 0, test: 0 },
-  { train: 7181, validation: 0, test: 0 },
-  { train: 10804, validation: 0, test: 0 },
-  { train: 3888, validation: 0, test: 0 },
-  { train: 388, validation: 0, test: 0 },
-  { train: 159, validation: 0, test: 0 },
-  { train: 197, validation: 0, test: 0 },
-  { train: 49107, validation: 0, test: 0 },
-  { train: 49296, validation: 167, test: 2 },
-  { train: 20853, validation: 35360, test: 663 },
-  { train: 101, validation: 124, test: 1 },
-  { train: 33157, validation: 33000, test: 677 },
-  { train: 19959, validation: 35590, test: 578 },
-  { train: 19654, validation: 35526, test: 601 },
-  { train: 14606, validation: 36570, test: 646 },
-  { train: 0, validation: 45208, test: 592 },
-  { train: 0, validation: 0, test: 87553 },
-  { train: 0, validation: 0, test: 21137 },
-  { train: 0, validation: 0, test: 157 },
-]
-
-const nucleicAcidDomainCounts: SplitMembershipCounts[] = [
-  { train: 6866, validation: 0, test: 0 },
-  { train: 36235, validation: 0, test: 0 },
-  { train: 25586, validation: 0, test: 0 },
-  { train: 9439, validation: 0, test: 0 },
-  { train: 3144, validation: 0, test: 0 },
-  { train: 8671, validation: 0, test: 0 },
-  { train: 12065, validation: 0, test: 0 },
-  { train: 493, validation: 0, test: 0 },
-  { train: 53293, validation: 0, test: 0 },
-  { train: 1627, validation: 0, test: 0 },
-  { train: 3620, validation: 0, test: 0 },
-  { train: 3308, validation: 0, test: 0 },
-  { train: 787, validation: 0, test: 0 },
-  { train: 16047, validation: 0, test: 0 },
-  { train: 20207, validation: 0, test: 0 },
-  { train: 7032, validation: 0, test: 0 },
-  { train: 666, validation: 0, test: 0 },
-  { train: 228, validation: 0, test: 0 },
-  { train: 296, validation: 0, test: 0 },
-  { train: 76694, validation: 0, test: 0 },
-  { train: 139374, validation: 0, test: 0 },
-  { train: 148304, validation: 214, test: 643 },
-  { train: 532, validation: 0, test: 0 },
-  { train: 147265, validation: 207, test: 573 },
-  { train: 148533, validation: 176, test: 487 },
-  { train: 148389, validation: 196, test: 508 },
-  { train: 148640, validation: 198, test: 602 },
-  { train: 148869, validation: 193, test: 555 },
-  { train: 0, validation: 148014, test: 907 },
-  { train: 0, validation: 0, test: 149660 },
-  { train: 0, validation: 0, test: 236 },
-]
-
-export const domainCountSourceNote =
-  'Each cell counts rows in one fixed split whose released Domain metadata label is D0-D30.'
-
-export const domainCountRecords: DomainCountRecord[] = proteinDomainCounts.map((proteinCounts, index) => ({
-  domain: index,
-  nodeId: index + 1,
-  counts: {
-    protein: proteinCounts,
-    dna: nucleicAcidDomainCounts[index],
-    rna: nucleicAcidDomainCounts[index],
-  },
-}))
 
 export const baselineEntries: BaselineEntry[] = [
   {

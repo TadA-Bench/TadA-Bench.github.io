@@ -17,8 +17,6 @@ import './App.css'
 import {
   baselineEntries,
   citationBibtex,
-  domainCountRecords,
-  domainCountSourceNote,
   metricDescriptions,
   metricLabels,
   modalityMeta,
@@ -30,6 +28,7 @@ import {
   resourceLinks,
   splitDescriptions,
   splitLabels,
+  splitOverlapAudit,
   splitStages,
   type MetricKey,
   type Modality,
@@ -73,12 +72,11 @@ const splitRoundLabels: Record<RoundPhase, string> = {
   test: 'Rounds 29-31',
 }
 
-function formatCompactCount(value: number) {
-  return new Intl.NumberFormat('en-US', {
-    maximumFractionDigits: 1,
-    notation: 'compact',
-  }).format(value)
-}
+const splitAuditPairs = [
+  { key: 'trainValidation', label: 'Train-Val' },
+  { key: 'trainTest', label: 'Train-Test' },
+  { key: 'validationTest', label: 'Val-Test' },
+] as const
 
 function DataOverviewSection({
   activeDataModality,
@@ -87,28 +85,16 @@ function DataOverviewSection({
   activeDataModality: Modality
   setActiveDataModality: (modality: Modality) => void
 }) {
-  const [activeDomain, setActiveDomain] = useState<number | null>(null)
   const rowCounts = releasedRowCounts[activeDataModality]
   const totalRows = splitCountTotal(rowCounts)
-  const maxDomainSplitCount = Math.max(
-    ...domainCountRecords.flatMap((record) => splitPhases.map((phase) => record.counts[activeDataModality][phase])),
-    1,
-  )
-  const activeDomainRecord =
-    activeDomain === null ? null : domainCountRecords.find((record) => record.domain === activeDomain) ?? null
-  const activeDomainCounts = activeDomainRecord?.counts[activeDataModality] ?? null
 
   return (
     <section className="data-section" aria-labelledby="data-heading">
-      <div className="section-heading">
+      <div className="section-heading section-heading--compact">
         <div>
           <p className="eyebrow">Dataset</p>
           <h2 id="data-heading">Released views and fixed replay split.</h2>
         </div>
-        <p>
-          The released Hugging Face dataset contains DNA, RNA, and protein sequence views. The benchmark task uses
-          rounds 1-27 for training, round 28 for validation, and rounds 29-31 for testing.
-        </p>
       </div>
 
       <div className="data-controls" aria-label="Dataset view controls">
@@ -161,82 +147,41 @@ function DataOverviewSection({
           </div>
         </article>
 
-        <article className="domain-audit-panel">
+        <article className="split-audit-panel">
           <div>
-            <p className="eyebrow">Domain counts</p>
-            <h3>Domain label counts by split</h3>
+            <p className="eyebrow">Split integrity</p>
+            <h3>Exact sequence overlap is zero.</h3>
             <p>
-              {domainCountSourceNote} A Domain label can appear in multiple fixed splits; that does not mean the same
-              sequence row belongs to more than one split.
+              Official split membership is the Hugging Face split name. The released <code>Domain</code> field is
+              multi-valued metadata, not the train/validation/test definition.
             </p>
           </div>
-          <div className="domain-matrix-wrap">
-            <div className="domain-matrix" aria-label="Domain metadata counts by replay split">
-              <span className="domain-matrix-corner">Fixed split</span>
-              {domainCountRecords.map((record) => (
-                <button
-                  aria-pressed={activeDomain === record.domain}
-                  className="domain-column-header"
-                  key={record.domain}
-                  onClick={() => setActiveDomain(record.domain)}
-                  type="button"
-                >
-                  D{record.domain}
-                </button>
-              ))}
-              {splitPhases.map((phase) => (
-                <div className="domain-matrix-row" key={phase}>
-                  <span className="domain-row-label">
-                    <strong>{datasetSplitLabels[phase]}</strong>
-                    <small>{splitRoundLabels[phase]}</small>
+          <div className="split-audit-table-wrap">
+            <div className="split-audit-grid" role="table" aria-label="Exact sequence overlap across released splits">
+              <div className="split-audit-head" role="row">
+                <span role="columnheader">View</span>
+                {splitAuditPairs.map((pair) => (
+                  <span key={pair.key} role="columnheader">
+                    {pair.label}
                   </span>
-                  {domainCountRecords.map((record) => {
-                    const count = record.counts[activeDataModality][phase]
-                    const intensity = Math.max(0.08, Math.min(0.92, Math.log1p(count) / Math.log1p(maxDomainSplitCount)))
-                    return (
-                      <button
-                        aria-label={`Domain label D${record.domain}, ${datasetSplitLabels[phase]}, ${formatCount(count)} rows`}
-                        className="domain-cell"
-                        data-active-domain={activeDomain === record.domain}
-                        data-empty={count === 0}
-                        data-phase={phase}
-                        key={`${phase}-${record.domain}`}
-                        onClick={() => setActiveDomain(record.domain)}
-                        style={{ '--cell-alpha': intensity.toFixed(3) } as CSSProperties}
-                        title={`D${record.domain} · ${datasetSplitLabels[phase]} · ${formatCount(count)} rows with this Domain label`}
-                        type="button"
-                      >
-                        <span>{count === 0 ? '0' : formatCompactCount(count)}</span>
-                      </button>
-                    )
-                  })}
+                ))}
+              </div>
+              {modalities.map((modality) => (
+                <div
+                  className="split-audit-row"
+                  data-active={activeDataModality === modality}
+                  key={modality}
+                  role="row"
+                >
+                  <strong role="rowheader">{modalityMeta[modality].label}</strong>
+                  {splitAuditPairs.map((pair) => (
+                    <span key={pair.key} role="cell">
+                      {formatCount(splitOverlapAudit[modality][pair.key])}
+                    </span>
+                  ))}
                 </div>
               ))}
             </div>
-          </div>
-          <div className="domain-detail" data-empty={activeDomainRecord === null}>
-            {activeDomainRecord && activeDomainCounts ? (
-              <>
-                <div>
-                  <p className="eyebrow">Selected domain</p>
-                  <h4>D{activeDomainRecord.domain}</h4>
-                </div>
-                <dl>
-                  {splitPhases.map((phase) => (
-                    <div key={phase}>
-                      <dt>{datasetSplitLabels[phase]}</dt>
-                      <dd>{formatCount(activeDomainCounts[phase])}</dd>
-                    </div>
-                  ))}
-                  <div>
-                    <dt>Rows with label</dt>
-                    <dd>{formatCount(splitCountTotal(activeDomainCounts))}</dd>
-                  </div>
-                </dl>
-              </>
-            ) : (
-              <p>Click a domain column or cell to inspect rows with that Domain label.</p>
-            )}
           </div>
         </article>
       </div>
