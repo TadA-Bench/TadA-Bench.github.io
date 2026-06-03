@@ -72,11 +72,11 @@ export const resourceLinks = [
   },
   {
     label: 'Dataset',
-    href: 'https://huggingface.co/datasets/JinGao/TadABench-1M',
+    href: 'https://huggingface.co/datasets/JinGao/TadA-Bench',
   },
   {
     label: 'Code',
-    href: 'https://github.com/shiyegao/TadABench-1M',
+    href: 'https://github.com/shiyegao/TadA-Bench',
   },
 ]
 

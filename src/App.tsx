@@ -685,12 +685,12 @@ function App() {
             arXiv paper
             <ExternalLink aria-hidden="true" />
           </a>
-          <a href="https://huggingface.co/datasets/JinGao/TadABench-1M" target="_blank" rel="noreferrer">
+          <a href="https://huggingface.co/datasets/JinGao/TadA-Bench" target="_blank" rel="noreferrer">
             <BookOpen aria-hidden="true" />
             Hugging Face dataset
             <ExternalLink aria-hidden="true" />
           </a>
-          <a href="https://github.com/shiyegao/TadABench-1M" target="_blank" rel="noreferrer">
+          <a href="https://github.com/shiyegao/TadA-Bench" target="_blank" rel="noreferrer">
             <Code2 aria-hidden="true" />
             Code repository
             <ExternalLink aria-hidden="true" />

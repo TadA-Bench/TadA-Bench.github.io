@@ -10,8 +10,8 @@ The site presents:
 - paper baseline tables for the DNA, RNA, and protein views;
 - protein-view random-split interpolation rows from the paper.
 
-The public benchmark name is `TadA-Bench`. The Hugging Face dataset slug remains
-`JinGao/TadABench-1M`.
+The public benchmark name is `TadA-Bench`. The Hugging Face dataset slug is
+`JinGao/TadA-Bench`.
 
 ## Development
 
