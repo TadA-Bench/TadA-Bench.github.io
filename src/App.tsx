@@ -223,7 +223,11 @@ function StorylineSection() {
             <div className="discovery-contrast">
               <div className="rank-sketch" data-mode="random">
                 <strong>Random split control</strong>
-                <span className="rank-axis" />
+                <span className="rank-axis">
+                  <svg aria-hidden="true" focusable="false" viewBox="0 0 100 70" preserveAspectRatio="none">
+                    <line x1="8" y1="62" x2="92" y2="10" />
+                  </svg>
+                </span>
               </div>
               <div className="rank-sketch" data-mode="future">
                 <strong>Future-round replay</strong>
@@ -384,8 +388,26 @@ function App() {
           <p className="eyebrow">ICML 2026</p>
           <h1 id="page-title">TadA-Bench</h1>
           <p className="hero-paper-title">{paperTitle}</p>
-          <p className="author-line">{paperAuthors.join(', ')}</p>
-          <p className="affiliation-line">{paperAffiliations.join(' · ')}</p>
+          <p className="author-line" aria-label="Authors">
+            {paperAuthors.map((author) => (
+              <span className="author-entry" key={author.name}>
+                {author.name}
+                <sup>{author.affiliations.join(',')}</sup>
+                {author.corresponding ? <sup>*</sup> : null}
+              </span>
+            ))}
+          </p>
+          <p className="affiliation-line" aria-label="Affiliations">
+            {paperAffiliations.map((affiliation) => (
+              <span key={affiliation.id}>
+                <sup>{affiliation.id}</sup>
+                {affiliation.label}
+              </span>
+            ))}
+          </p>
+          <p className="correspondence-line">
+            <sup>*</sup> Corresponding authors: Yuming Lu and Dequan Wang.
+          </p>
           <div className="hero-actions" aria-label="Primary links">
             {resourceLinks.map((link) => (
               <a className="icon-button" href={link.href} key={link.label} target="_blank" rel="noreferrer">
@@ -419,6 +441,8 @@ function App() {
         </aside>
       </section>
 
+      <StorylineSection />
+
       <section className="protocol-map" aria-label="Train validation test protocol">
         {splitStages.map((stage) => (
           <article className="stage-card" key={stage.label}>
@@ -438,8 +462,6 @@ function App() {
           </article>
         ))}
       </section>
-
-      <StorylineSection />
 
       <DataOverviewSection activeDataModality={activeModality} setActiveDataModality={setActiveModality} />
 

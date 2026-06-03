@@ -30,6 +30,17 @@ export type SplitStage = {
   proteinCount: string
 }
 
+export type PaperAuthor = {
+  name: string
+  affiliations: number[]
+  corresponding?: boolean
+}
+
+export type PaperAffiliation = {
+  id: number
+  label: string
+}
+
 export const releasedRowCounts: Record<Modality, SplitMembershipCounts> = {
   dna: { train: 729302, validation: 148014, test: 149884 },
   rna: { train: 729302, validation: 148014, test: 149884 },
@@ -45,18 +56,21 @@ export type RandomSplitProteinEntry = {
 export const paperTitle =
   'TadA-Bench: A Million-Variant Benchmark for Future-Round Discovery Toward Agentic Protein Engineering'
 
-export const paperAuthors = [
-  'Jin Gao',
-  'Juntu Zhao',
-  'Zirui Zeng',
-  'Jiaqi Shen',
-  'Junhao Shi',
-  'Dukun Zhao',
-  'Yuming Lu',
-  'Dequan Wang',
+export const paperAuthors: PaperAuthor[] = [
+  { name: 'Jin Gao', affiliations: [1] },
+  { name: 'Juntu Zhao', affiliations: [1] },
+  { name: 'Zirui Zeng', affiliations: [1] },
+  { name: 'Jiaqi Shen', affiliations: [1] },
+  { name: 'Junhao Shi', affiliations: [1] },
+  { name: 'Dukun Zhao', affiliations: [1] },
+  { name: 'Yuming Lu', affiliations: [1], corresponding: true },
+  { name: 'Dequan Wang', affiliations: [1, 2], corresponding: true },
 ]
 
-export const paperAffiliations = ['Shanghai Jiao Tong University', 'Shanghai Innovation Institute']
+export const paperAffiliations: PaperAffiliation[] = [
+  { id: 1, label: 'Shanghai Jiao Tong University' },
+  { id: 2, label: 'Shanghai Innovation Institute' },
+]
 
 export const resourceLinks = [
   {
