@@ -169,11 +169,9 @@ const storyPillars = [
         scale.
       </>
     ),
-    body: 'Within-round rankings and overlap anchors reconcile noisy NGS selections into comparable cross-round labels.',
+    body: 'Within-round rankings and overlap anchors reconcile noisy enrichment signals into comparable cross-round labels.',
   },
 ] as const
-
-const seq2GraphSteps = ['NGS selections', 'Within-round ranks', 'Overlap anchors', 'Cycle cleanup', 'Activity scores']
 
 const variantDots = Array.from({ length: 54 }, (_, index) => ({
   x: 9 + ((index * 37) % 82),
@@ -265,94 +263,6 @@ function StorylineSection() {
             ))}
           </div>
 
-          <div className="seq2graph-strip" aria-label="Seq2Graph construction steps">
-            <div className="seq2graph-steps">
-              {seq2GraphSteps.map((step, index) => (
-                <span key={step}>
-                  <b>{index + 1}</b>
-                  {step}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="replay-panel" aria-label="Fixed-data replay evaluation">
-            <div>
-              <h3>Models rank held-out later-round variants using labeled rounds 1-27.</h3>
-            </div>
-            <div className="replay-layout">
-              <div className="replay-track" aria-hidden="true">
-                <span data-phase="train">
-                  <b>Train</b>
-                  <small>Rounds 1-27</small>
-                </span>
-                <i />
-                <span data-phase="validation">
-                  <b>Tune</b>
-                  <small>Round 28</small>
-                </span>
-                <i />
-                <span data-phase="test">
-                  <b>Rank</b>
-                  <small>Rounds 29-31</small>
-                </span>
-                <i />
-                <span data-phase="rank">
-                  <b>Score</b>
-                  <small>Top-k recovery</small>
-                </span>
-              </div>
-              <div className="discovery-contrast">
-                <div className="rank-sketch" data-mode="random">
-                  <strong>8:1:1 interpolation</strong>
-                  <em>Mixed variants across rounds</em>
-                  <span className="rank-axis">
-                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 90" preserveAspectRatio="none">
-                      <line x1="8" y1="78" x2="92" y2="14" />
-                    </svg>
-                  </span>
-                </div>
-                <div className="rank-sketch" data-mode="future">
-                  <strong>Held-out later rounds</strong>
-                  <em>Rank variants from rounds 29-31</em>
-                  <span className="rank-scatter">
-                    <i />
-                    <i />
-                    <i />
-                    <i />
-                    <i />
-                    <i />
-                    <i />
-                  </span>
-                </div>
-                <div className="rank-sketch" data-mode="coverage">
-                  <strong>Coverage over local density</strong>
-                  <em>Top-k candidates should cover later-round regions</em>
-                  <span className="coverage-map">
-                    <span className="coverage-local" data-label="Near neighbors">
-                      <i />
-                      <i />
-                      <i />
-                      <i />
-                      <i />
-                      <i />
-                      <i />
-                      <i />
-                      <i />
-                    </span>
-                    <b aria-hidden="true" />
-                    <span className="coverage-broad" data-label="Rounds 29-31">
-                      <i data-phase="train" />
-                      <i data-phase="validation" />
-                      <i data-phase="test" />
-                      <i data-phase="train" />
-                      <i data-phase="test" />
-                    </span>
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </section>
