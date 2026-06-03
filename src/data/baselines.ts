@@ -83,10 +83,6 @@ export const citationBibtex = `@inproceedings{gao2026tadabench,
   title = {TadA-Bench: A Million-Variant Benchmark for Future-Round Discovery Toward Agentic Protein Engineering},
   author = {Gao, Jin and Zhao, Juntu and Zeng, Zirui and Shen, Jiaqi and Shi, Junhao and Zhao, Dukun and Lu, Yuming and Wang, Dequan},
   booktitle = {Proceedings of the 43rd International Conference on Machine Learning},
-  series = {Proceedings of Machine Learning Research},
-  volume = {306},
-  address = {Seoul, South Korea},
-  publisher = {PMLR},
   year = {2026}
 }`
 
@@ -96,20 +92,9 @@ export const metricLabels: Record<MetricKey, string> = {
   ndcgAt10: 'nDCG@10%',
 }
 
-export const metricDescriptions: Record<MetricKey, string> = {
-  spearman: 'Global rank correlation between predicted and Seq2Graph activity order.',
-  recallAt10: 'Fraction of true top-decile variants recovered in the predicted top decile.',
-  ndcgAt10: 'Top-decile ranking quality for candidate prioritization under limited wet-lab budget.',
-}
-
 export const splitLabels: Record<SplitKey, string> = {
   validation: 'Validation',
   test: 'Test',
-}
-
-export const splitDescriptions: Record<SplitKey, string> = {
-  validation: 'Round 28 is used for learning-rate and model-selection decisions.',
-  test: 'Rounds 29-31 are later wet-lab evidence and define the paper-reported future-round test set.',
 }
 
 export const modalityMeta: Record<

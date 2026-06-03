@@ -1,6 +1,8 @@
 import { useMemo, useState, type CSSProperties } from 'react'
 import {
+  ArrowDown,
   ArrowDownUp,
+  ArrowUp,
   BarChart3,
   BookOpen,
   Code2,
@@ -16,7 +18,6 @@ import './App.css'
 import {
   baselineEntries,
   citationBibtex,
-  metricDescriptions,
   metricLabels,
   modalityMeta,
   paperAffiliations,
@@ -25,7 +26,6 @@ import {
   randomSplitProteinControls,
   releasedRowCounts,
   resourceLinks,
-  splitDescriptions,
   splitLabels,
   type MetricKey,
   type Modality,
@@ -38,6 +38,17 @@ const metricKeys = Object.keys(metricLabels) as MetricKey[]
 const modalities: Modality[] = ['dna', 'rna', 'protein']
 const splitKeys = Object.keys(splitLabels) as SplitKey[]
 const splitPhases: RoundPhase[] = ['train', 'validation', 'test']
+type SortKey = 'rank' | 'modelName' | MetricKey
+type SortDirection = 'asc' | 'desc'
+
+const baselineOrder = new Map(baselineEntries.map((entry, index) => [entry.id, index]))
+const tableColumns: { key: SortKey; label: string }[] = [
+  { key: 'rank', label: 'Rank' },
+  { key: 'modelName', label: 'Model' },
+  { key: 'spearman', label: metricLabels.spearman },
+  { key: 'recallAt10', label: metricLabels.recallAt10 },
+  { key: 'ndcgAt10', label: metricLabels.ndcgAt10 },
+]
 
 function formatScore(value: number) {
   return value.toFixed(4)
@@ -49,6 +60,17 @@ function formatCount(value: number) {
 
 function splitCountTotal(counts: SplitMembershipCounts) {
   return counts.train + counts.validation + counts.test
+}
+
+function getSortValue(entry: (typeof baselineEntries)[number], key: SortKey, split: SplitKey) {
+  if (key === 'rank') return baselineOrder.get(entry.id) ?? 0
+  if (key === 'modelName') return entry.modelName
+  return entry[split][key]
+}
+
+function compareSortValues(a: string | number, b: string | number, direction: SortDirection) {
+  const comparison = typeof a === 'string' && typeof b === 'string' ? a.localeCompare(b) : Number(a) - Number(b)
+  return direction === 'asc' ? comparison : -comparison
 }
 
 function ModalityIcon({ modality }: { modality: Modality }) {
@@ -91,7 +113,15 @@ const storyPillars = [
   {
     key: 'consistency',
     label: 'Consistency',
-    title: 'Seq2Graph builds one activity scale.',
+    title: (
+      <>
+        Seq2Graph builds
+        <br />
+        one activity
+        <br />
+        scale.
+      </>
+    ),
     body: 'Within-round rankings and overlap anchors reconcile noisy NGS selections into comparable cross-round labels.',
   },
 ] as const
@@ -278,32 +308,6 @@ function StorylineSection() {
               </div>
             </div>
           </div>
-
-          <div className="story-takeaway" aria-label="Benchmark takeaway">
-            <div>
-              <p className="eyebrow">Key takeaway</p>
-              <h3>Known-data interpolation is not future-round discovery.</h3>
-              <p>
-                TadA-Bench isolates the ranking module a future protein-engineering workflow would need before
-                acquisition policies or new wet-lab actions are added. The benchmark asks whether recorded wet-lab
-                history is enough to prioritize later candidates under a fixed replay protocol.
-              </p>
-            </div>
-            <dl>
-              <div>
-                <dt>Model sees</dt>
-                <dd>Rounds 1-27 variants + labels</dd>
-              </div>
-              <div>
-                <dt>Model outputs</dt>
-                <dd>Candidate ranking</dd>
-              </div>
-              <div>
-                <dt>Evaluated on</dt>
-                <dd>Rounds 29-31 variants</dd>
-              </div>
-            </dl>
-          </div>
         </div>
       </div>
     </section>
@@ -373,9 +377,12 @@ function DataOverviewSection() {
 
 function App() {
   const [activeModality, setActiveModality] = useState<Modality>('dna')
-  const [activeMetric, setActiveMetric] = useState<MetricKey>('spearman')
   const [activeSplit, setActiveSplit] = useState<SplitKey>('test')
   const [query, setQuery] = useState('')
+  const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection }>({
+    key: 'spearman',
+    direction: 'desc',
+  })
 
   const visibleEntries = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
@@ -385,18 +392,38 @@ function App() {
         if (!normalizedQuery) return true
         return `${entry.modelName} ${entry.modelFamily} ${entry.protocol}`.toLowerCase().includes(normalizedQuery)
       })
-      .sort((a, b) => b[activeSplit][activeMetric] - a[activeSplit][activeMetric])
-  }, [activeMetric, activeModality, activeSplit, query])
+      .sort((a, b) => {
+        const primary = compareSortValues(
+          getSortValue(a, sortConfig.key, activeSplit),
+          getSortValue(b, sortConfig.key, activeSplit),
+          sortConfig.direction,
+        )
+        if (primary !== 0) return primary
+        return a.modelName.localeCompare(b.modelName)
+      })
+  }, [activeModality, activeSplit, query, sortConfig])
+
+  const handleSort = (key: SortKey) => {
+    setSortConfig((current) => {
+      if (current.key === key) {
+        return { key, direction: current.direction === 'asc' ? 'desc' : 'asc' }
+      }
+      return { key, direction: key === 'modelName' || key === 'rank' ? 'asc' : 'desc' }
+    })
+  }
 
   const tableHeading =
-    activeSplit === 'test'
-      ? 'Paper baselines on the fixed future-round test set.'
-      : 'Paper baseline table sorted by validation metrics.'
-  const visibleMetricMax = Math.max(
-    ...visibleEntries.flatMap((entry) => [entry.validation[activeMetric], entry.test[activeMetric]]),
-    0.001,
-  )
-  const topEntries = visibleEntries.slice(0, 3)
+    activeSplit === 'test' ? (
+      <>
+        <span>Paper baselines on the</span>
+        <span>fixed future-round test set.</span>
+      </>
+    ) : (
+      <>
+        <span>Paper baselines on the</span>
+        <span>validation split.</span>
+      </>
+    )
 
   return (
     <main>
@@ -462,98 +489,12 @@ function App() {
 
       <DataOverviewSection />
 
-      <section className="control-band" aria-label="Baseline sorting controls">
-        <div className="tabs" aria-label="Sequence view">
-          {modalities.map((modality) => (
-            <button
-              aria-pressed={activeModality === modality}
-              className="tab-button"
-              key={modality}
-              onClick={() => setActiveModality(modality)}
-              style={{ '--tab-accent': modalityMeta[modality].accent } as CSSProperties}
-              type="button"
-            >
-              <ModalityIcon modality={modality} />
-              {modalityMeta[modality].label}
-            </button>
-          ))}
-        </div>
-
-        <div className="metric-toggle" aria-label="Sort split">
-          {splitKeys.map((split) => (
-            <button
-              aria-pressed={activeSplit === split}
-              className="metric-button"
-              data-active={activeSplit === split}
-              key={split}
-              onClick={() => setActiveSplit(split)}
-              type="button"
-            >
-              <Filter aria-hidden="true" />
-              {splitLabels[split]}
-            </button>
-          ))}
-        </div>
-
-        <div className="metric-toggle" aria-label="Sort metric">
-          {metricKeys.map((metric) => (
-            <button
-              aria-pressed={activeMetric === metric}
-              className="metric-button"
-              data-active={activeMetric === metric}
-              key={metric}
-              onClick={() => setActiveMetric(metric)}
-              type="button"
-            >
-              <ArrowDownUp aria-hidden="true" />
-              {metricLabels[metric]}
-            </button>
-          ))}
-        </div>
-      </section>
-
       <section className="baseline-section" id="paper-baselines">
-        <div className="section-heading">
+        <div className="section-heading section-heading--baseline">
           <div>
-            <p className="eyebrow">
-              {modalityMeta[activeModality].shortLabel} · sorted by {splitLabels[activeSplit]} {metricLabels[activeMetric]}
-            </p>
-            <h2>{tableHeading}</h2>
+            <p className="eyebrow">Paper baselines</p>
+            <h2 className="baseline-heading-lines">{tableHeading}</h2>
           </div>
-          <p>
-            {metricDescriptions[activeMetric]} {splitDescriptions[activeSplit]}
-          </p>
-        </div>
-
-        <div className="baseline-strips" aria-label="Top baseline metric comparison">
-          {topEntries.map((entry, index) => (
-            <article className="baseline-strip" key={entry.id}>
-              <span className="strip-rank">{index + 1}</span>
-              <div className="strip-method">
-                {entry.modelHref ? (
-                  <a href={entry.modelHref} target="_blank" rel="noreferrer">
-                    {entry.modelName}
-                    <ExternalLink aria-hidden="true" />
-                  </a>
-                ) : (
-                  <strong>{entry.modelName}</strong>
-                )}
-                <small>{entry.modelFamily}</small>
-              </div>
-              {(['validation', 'test'] as SplitKey[]).map((split) => (
-                <div className="strip-metric" key={split}>
-                  <span>
-                    {splitLabels[split]} {metricLabels[activeMetric]}
-                    <em>{formatScore(entry[split][activeMetric])}</em>
-                  </span>
-                  <i
-                    aria-hidden="true"
-                    style={{ transform: `scaleX(${entry[split][activeMetric] / visibleMetricMax})` }}
-                  />
-                </div>
-              ))}
-            </article>
-          ))}
         </div>
 
         <div className="table-panel">
@@ -568,24 +509,74 @@ function App() {
                 value={query}
               />
             </label>
-            <span className="filter-pill">
-              <Filter aria-hidden="true" />
-              {modalityMeta[activeModality].label} view · {splitLabels[activeSplit]} split
-            </span>
+            <div className="table-filter-group" aria-label="Baseline table filters">
+              <label className="filter-select">
+                <Filter aria-hidden="true" />
+                <span>View</span>
+                <select
+                  aria-label="Filter by sequence view"
+                  onChange={(event) => setActiveModality(event.target.value as Modality)}
+                  value={activeModality}
+                >
+                  {modalities.map((modality) => (
+                    <option key={modality} value={modality}>
+                      {modalityMeta[modality].label} view
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="filter-select">
+                <Filter aria-hidden="true" />
+                <span>Split</span>
+                <select
+                  aria-label="Filter by evaluation split"
+                  onChange={(event) => setActiveSplit(event.target.value as SplitKey)}
+                  value={activeSplit}
+                >
+                  {splitKeys.map((split) => (
+                    <option key={split} value={split}>
+                      {splitLabels[split]} split
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
           </div>
 
           <div className="baseline-table-wrap">
-            <table className="baseline-table">
+            <table className="baseline-table" aria-label={`${modalityMeta[activeModality].label} ${splitLabels[activeSplit]} baseline metrics`}>
               <thead>
                 <tr>
-                  <th>Order</th>
-                  <th>Model</th>
-                  <th>Val Spearman</th>
-                  <th>Val Recall@10%</th>
-                  <th>Val nDCG@10%</th>
-                  <th>Test Spearman</th>
-                  <th>Test Recall@10%</th>
-                  <th>Test nDCG@10%</th>
+                  {tableColumns.map((column) => {
+                    const isActiveSort = sortConfig.key === column.key
+                    return (
+                      <th
+                        aria-sort={
+                          isActiveSort ? (sortConfig.direction === 'asc' ? 'ascending' : 'descending') : 'none'
+                        }
+                        key={column.key}
+                        scope="col"
+                      >
+                        <button
+                          className="sort-header"
+                          data-active={isActiveSort}
+                          onClick={() => handleSort(column.key)}
+                          type="button"
+                        >
+                          {column.label}
+                          {isActiveSort ? (
+                            sortConfig.direction === 'asc' ? (
+                              <ArrowUp aria-hidden="true" />
+                            ) : (
+                              <ArrowDown aria-hidden="true" />
+                            )
+                          ) : (
+                            <ArrowDownUp aria-hidden="true" />
+                          )}
+                        </button>
+                      </th>
+                    )
+                  })}
                 </tr>
               </thead>
               <tbody>
@@ -605,12 +596,11 @@ function App() {
                         <small>{entry.modelFamily}</small>
                       </span>
                     </td>
-                    <td className="score-cell">{formatScore(entry.validation.spearman)}</td>
-                    <td className="score-cell">{formatScore(entry.validation.recallAt10)}</td>
-                    <td className="score-cell">{formatScore(entry.validation.ndcgAt10)}</td>
-                    <td className="score-cell">{formatScore(entry.test.spearman)}</td>
-                    <td className="score-cell">{formatScore(entry.test.recallAt10)}</td>
-                    <td className="score-cell">{formatScore(entry.test.ndcgAt10)}</td>
+                    {metricKeys.map((metric) => (
+                      <td className="score-cell" key={metric}>
+                        {formatScore(entry[activeSplit][metric])}
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
