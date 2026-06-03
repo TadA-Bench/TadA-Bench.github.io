@@ -28,7 +28,6 @@ import {
   resourceLinks,
   splitDescriptions,
   splitLabels,
-  splitStages,
   type MetricKey,
   type Modality,
   type RoundPhase,
@@ -167,15 +166,11 @@ function StoryVisual({ type }: { type: (typeof storyPillars)[number]['key'] }) {
 function StorylineSection() {
   return (
     <section className="story-section" aria-labelledby="story-heading">
-      <div className="section-heading">
+      <div className="section-heading section-heading--compact">
         <div>
           <p className="eyebrow">Benchmark idea</p>
           <h2 id="story-heading">From a recorded TadA campaign to replayed future-round decisions.</h2>
         </div>
-        <p>
-          TadA-Bench isolates the ranking module a future protein-engineering workflow would need before acquisition
-          policies or new wet-lab actions are added.
-        </p>
       </div>
 
       <div className="story-board">
@@ -222,7 +217,7 @@ function StorylineSection() {
             </div>
             <div className="discovery-contrast">
               <div className="rank-sketch" data-mode="random">
-                <strong>Random split control</strong>
+                <strong>8:1:1 interpolation control</strong>
                 <span className="rank-axis">
                   <svg aria-hidden="true" focusable="false" viewBox="0 0 100 70" preserveAspectRatio="none">
                     <line x1="8" y1="62" x2="92" y2="10" />
@@ -252,30 +247,33 @@ function StorylineSection() {
               </div>
             </div>
           </div>
-        </div>
 
-        <aside className="story-takeaway" aria-label="Benchmark takeaway">
-          <p className="eyebrow">Key takeaway</p>
-          <h3>Known-data interpolation is not future-round discovery.</h3>
-          <p>
-            The benchmark asks whether a model can use recorded wet-lab history to prioritize later candidates under a
-            fixed replay protocol.
-          </p>
-          <dl>
+          <div className="story-takeaway" aria-label="Benchmark takeaway">
             <div>
-              <dt>Input evidence</dt>
-              <dd>Earlier rounds</dd>
+              <p className="eyebrow">Key takeaway</p>
+              <h3>Known-data interpolation is not future-round discovery.</h3>
+              <p>
+                TadA-Bench isolates the ranking module a future protein-engineering workflow would need before
+                acquisition policies or new wet-lab actions are added. The benchmark asks whether recorded wet-lab
+                history is enough to prioritize later candidates under a fixed replay protocol.
+              </p>
             </div>
-            <div>
-              <dt>Decision proxy</dt>
-              <dd>Candidate ranking</dd>
-            </div>
-            <div>
-              <dt>Offline boundary</dt>
-              <dd>No new experiments</dd>
-            </div>
-          </dl>
-        </aside>
+            <dl>
+              <div>
+                <dt>Input evidence</dt>
+                <dd>Earlier rounds</dd>
+              </div>
+              <div>
+                <dt>Decision proxy</dt>
+                <dd>Candidate ranking</dd>
+              </div>
+              <div>
+                <dt>Offline boundary</dt>
+                <dd>No new experiments</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
       </div>
     </section>
   )
@@ -442,26 +440,6 @@ function App() {
       </section>
 
       <StorylineSection />
-
-      <section className="protocol-map" aria-label="Train validation test protocol">
-        {splitStages.map((stage) => (
-          <article className="stage-card" key={stage.label}>
-            <p className="eyebrow">{stage.label}</p>
-            <h2>{stage.rounds}</h2>
-            <p>{stage.purpose}</p>
-            <dl>
-              <div>
-                <dt>DNA/RNA each</dt>
-                <dd>{stage.dnaRnaCount}</dd>
-              </div>
-              <div>
-                <dt>Protein</dt>
-                <dd>{stage.proteinCount}</dd>
-              </div>
-            </dl>
-          </article>
-        ))}
-      </section>
 
       <DataOverviewSection activeDataModality={activeModality} setActiveDataModality={setActiveModality} />
 
@@ -634,20 +612,34 @@ function App() {
             <h2 id="diagnostic-heading">Interpolation control, not the benchmark leaderboard.</h2>
           </div>
           <p>
-            The paper uses the 8:1:1 random split to test label learnability under interpolation. These scores are
-            separate from the fixed future-round leaderboard above.
+            The 8:1:1 interpolation-control split is reported as a label-learnability diagnostic. These protein-view
+            scores are separate from the fixed future-round leaderboard above.
           </p>
         </div>
 
-        <div className="random-table" aria-label="Protein random-split test rows">
-          {randomSplitProteinControls.map((row) => (
-            <div className="random-row" key={row.modelName}>
-              <strong>{row.modelName}</strong>
-              <span>Test Spearman {formatScore(row.test.spearman)}</span>
-              <span>Recall@10% {formatScore(row.test.recallAt10)}</span>
-              <span>nDCG@10% {formatScore(row.test.ndcgAt10)}</span>
-            </div>
-          ))}
+        <div className="random-table-wrap">
+          <table className="random-table" aria-label="Protein interpolation-control test metrics">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Spearman</th>
+                <th>Recall@10%</th>
+                <th>nDCG@10%</th>
+              </tr>
+            </thead>
+            <tbody>
+              {randomSplitProteinControls.map((row) => (
+                <tr key={row.modelName}>
+                  <td>
+                    <strong>{row.modelName}</strong>
+                  </td>
+                  <td>{formatScore(row.test.spearman)}</td>
+                  <td>{formatScore(row.test.recallAt10)}</td>
+                  <td>{formatScore(row.test.ndcgAt10)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
 
@@ -660,7 +652,7 @@ function App() {
           <div className="protocol-item">
             <GitBranch aria-hidden="true" />
             <h3>Fixed replay scope</h3>
-            <p>Future-round replay is the benchmark task; the random split is an interpolation analysis.</p>
+            <p>Future-round replay is the benchmark task; the 8:1:1 interpolation control is a diagnostic analysis.</p>
           </div>
           <div className="protocol-item">
             <Filter aria-hidden="true" />

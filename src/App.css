@@ -3,7 +3,6 @@ main {
 }
 
 .hero-section,
-.protocol-map,
 .story-section,
 .data-section,
 .control-band,
@@ -201,16 +200,6 @@ main {
   font-size: 1.05rem;
 }
 
-.protocol-map {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  padding-block: 28px;
-  border-bottom: 1px solid var(--line);
-  background: #ffffff;
-}
-
-.stage-card,
 .protocol-item,
 .table-panel,
 .citation-section pre {
@@ -219,59 +208,10 @@ main {
   background: #ffffff;
 }
 
-.stage-card {
-  display: grid;
-  grid-template-rows: auto auto minmax(48px, 1fr) auto;
-  align-items: start;
-  padding: 17px;
-}
-
-.stage-card h2 {
-  margin: 0 0 10px;
-  color: var(--ink);
-  font-family: var(--display);
-  font-size: clamp(1.65rem, 3vw, 2.55rem);
-  line-height: 1;
-  letter-spacing: 0;
-}
-
-.stage-card p,
 .protocol-item p,
 .section-heading > p {
   margin: 0;
   color: var(--muted);
-}
-
-.stage-card dl {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px;
-  width: 100%;
-  align-self: end;
-  margin: 16px 0 0;
-  border: 1px solid var(--line);
-  background: var(--line);
-}
-
-.stage-card dl div {
-  padding: 10px;
-  background: #ffffff;
-}
-
-.stage-card dt {
-  margin: 0 0 4px;
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
-.stage-card dd {
-  margin: 0;
-  color: var(--ink);
-  font-family: var(--mono);
-  font-weight: 800;
 }
 
 .data-section,
@@ -323,13 +263,10 @@ main {
 
 .story-board {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.55fr);
-  gap: 14px;
-  align-items: stretch;
+  grid-template-columns: minmax(0, 1fr);
 }
 
-.story-main,
-.story-takeaway {
+.story-main {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fffffb;
@@ -791,22 +728,24 @@ main {
 
 .story-takeaway {
   display: grid;
-  align-content: start;
-  gap: 18px;
+  grid-template-columns: minmax(0, 0.95fr) minmax(340px, 0.72fr);
+  gap: clamp(18px, 3vw, 34px);
+  align-items: start;
   padding: 22px;
-  background:
-    linear-gradient(180deg, rgb(191 63 47 / 8%), transparent 46%),
-    #fffffb;
+  border-top: 1px solid var(--line);
+  background: #fffffb;
 }
 
 .story-takeaway h3 {
-  font-size: clamp(1.45rem, 2.6vw, 2.05rem);
+  margin-bottom: 10px;
+  font-size: clamp(1.32rem, 2.2vw, 1.92rem);
 }
 
 .story-takeaway dl {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1px;
-  margin: 4px 0 0;
+  margin: 0;
   border: 1px solid var(--line);
   background: var(--line);
 }
@@ -1242,35 +1181,54 @@ main {
   color: var(--muted);
 }
 
-.random-table {
-  display: grid;
+.random-table-wrap {
   border: 1px solid var(--line);
   border-radius: 6px;
   background: #ffffff;
   overflow: hidden;
 }
 
-.random-row {
-  display: grid;
-  grid-template-columns: minmax(150px, 1fr) repeat(3, minmax(145px, 0.85fr));
-  gap: 12px;
-  align-items: center;
-  padding: 13px 15px;
-  border-bottom: 1px solid var(--line);
+.random-table-wrap {
+  overflow-x: auto;
 }
 
-.random-row:last-child {
+.random-table {
+  width: 100%;
+  min-width: 620px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.random-table th {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  background: #f1efe7;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.random-table td {
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  font-weight: 760;
+}
+
+.random-table tbody tr:last-child td {
   border-bottom: 0;
 }
 
-.random-row strong {
-  color: var(--ink);
+.random-table tbody tr:hover td {
+  background: #fbfaf6;
 }
 
-.random-row span {
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 0.84rem;
+.random-table strong {
+  font-family: var(--body);
 }
 
 .protocol-section,
@@ -1354,7 +1312,6 @@ main {
 @media (max-width: 1120px) {
   .hero-section,
   .section-heading,
-  .protocol-map,
   .data-overview,
   .story-board,
   .protocol-section,
@@ -1500,7 +1457,11 @@ main {
     transform: rotate(135deg);
   }
 
-  .random-row {
+  .story-takeaway {
+    grid-template-columns: 1fr;
+  }
+
+  .story-takeaway dl {
     grid-template-columns: 1fr;
   }
 

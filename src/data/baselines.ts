@@ -22,14 +22,6 @@ export type BaselineEntry = {
   source: string
 }
 
-export type SplitStage = {
-  label: string
-  rounds: string
-  purpose: string
-  dnaRnaCount: string
-  proteinCount: string
-}
-
 export type PaperAuthor = {
   name: string
   affiliations: number[]
@@ -162,30 +154,6 @@ export function phaseForRound(round: number): RoundPhase {
   if (round === 28) return 'validation'
   return 'test'
 }
-
-export const splitStages: SplitStage[] = [
-  {
-    label: 'Training set',
-    rounds: 'Rounds 1-27',
-    purpose: 'Earlier recorded variants and relative activity labels available to the model.',
-    dnaRnaCount: '729,302',
-    proteinCount: '256,429',
-  },
-  {
-    label: 'Validation set',
-    rounds: 'Round 28',
-    purpose: 'Held-out round used for model selection and hyperparameter choice before final test reporting.',
-    dnaRnaCount: '148,014',
-    proteinCount: '45,208',
-  },
-  {
-    label: 'Test set',
-    rounds: 'Rounds 29-31',
-    purpose: 'Later recorded variants used for paper-reported future-round ranking.',
-    dnaRnaCount: '149,884',
-    proteinCount: '108,232',
-  },
-]
 
 export const baselineEntries: BaselineEntry[] = [
   {
